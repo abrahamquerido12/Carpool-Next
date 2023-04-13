@@ -1,4 +1,4 @@
-import { GetServerSidePropsContext } from 'next';
+// import { GetServerSidePropsContext } from 'next';
 import MainLayout from '../layouts/MainLayout';
 
 export default function Home() {
@@ -6,15 +6,15 @@ export default function Home() {
 }
 
 // redirect to /login if user is not authenticated
-export async function getServerSideProps(context: GetServerSidePropsContext) {
-  console.log('context', context);
+// export async function getServerSideProps(context: GetServerSidePropsContext) {
+//   console.log('context', context);
 
-  const { req, res } = context;
-  if (!req.cookies.token) {
-    res.writeHead(302, { Location: '/login' });
-    res.end();
-  }
-  return {
-    props: {},
-  };
-}
+//   const { req, res } = context;
+//   if (!req.cookies.token) {
+//     res.writeHead(302, { Location: '/login' });
+//     res.end();
+//   }
+//   return {
+//     props: {},
+//   };
+// }
