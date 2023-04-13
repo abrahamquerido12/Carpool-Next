@@ -1,3 +1,4 @@
+/// <reference types="@types/parse-json" />
 {
   "compilerOptions": {
     "target": "es5",

@@ -11,6 +11,9 @@
     "dev": "cross-env NODE_OPTIONS='--inspect' next dev"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.12.0",
     "@prisma/client": "^4.12.0",
     "@types/node": "18.15.11",
     "@types/react": "18.0.35",
@@ -26,6 +29,7 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "@types/parse-json": "^4.0.0",
     "cross-env": "^7.0.3",
     "prettier": "^2.8.7",
     "prisma": "^4.12.0"
