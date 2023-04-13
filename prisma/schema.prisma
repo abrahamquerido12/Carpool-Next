@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+
+  isDriver  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile?
+  driver    Driver?
+  Passenger Passenger?
+}
+
+model Profile {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  firstName      String
+  firstLastName  String
+  secondLastName String
+  phoneNumber    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Driver {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  car Car?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Trip      Trip[]
+
+  weeklyTrips WeeklyTrip[]
+}
+
+model WeeklyTrip {
+  id Int @id @default(autoincrement())
+
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int
+
+  dayOfWeek DayOfWeek
+
+  origin            String
+  originCoordinates String
+
+  destination            String
+  destinationCoordinates String
+
+  departureTime DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+model Passenger {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Trip        Trip?         @relation(fields: [tripId], references: [id])
+  tripId      Int?
+  TripRequest TripRequest[]
+}
+
+model Car {
+  id Int @id @default(autoincrement())
+
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int    @unique
+
+  brand String
+  model String
+  color String
+  plate String
+  seats Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Trip {
+  id Int @id @default(autoincrement())
+
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int
+
+  // up to no. of seats in car passenger can be added
+  passengers Passenger[]
+
+  origin      String
+  destination String
+  date        DateTime
+
+  isRecurrent  Boolean
+  isFromSchool Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  TripRequest TripRequest[]
+
+  status TripStatus
+}
+
+enum TripStatus {
+  PENDING
+  IN_PROGRESS
+  FINISHED
+}
+
+model TripRequest {
+  id Int @id @default(autoincrement())
+
+  passenger   Passenger @relation(fields: [passengerId], references: [id])
+  passengerId Int
+
+  trip   Trip @relation(fields: [tripId], references: [id])
+  tripId Int
+
+  status TripRequestStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TripRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
