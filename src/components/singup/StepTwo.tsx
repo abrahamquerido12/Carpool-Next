@@ -47,6 +47,7 @@ const StepTwo = () => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full"
           size="small"
+          type="password"
         />
       </div>
 
@@ -58,6 +59,7 @@ const StepTwo = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full"
           size="small"
+          type="password"
         />
       </div>
     </div>

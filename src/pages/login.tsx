@@ -1,18 +1,32 @@
 import car from '@/../public/car.svg';
 import { TextField } from '@mui/material';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 import CustomButton from '../components/Button';
+import CustomToast from '../components/CustomToast';
 
 const LoginPage = () => {
+  const router = useRouter();
+
+  //get message from query
+  const error = router.query.error?.toString();
+
   //   const { user, login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // await login(email, password);
+    console.log('submit');
+
+    await signIn('credentials', {
+      callbackUrl: router.query.callbackUrl?.toString() || '/',
+      email,
+      password,
+    });
   };
 
   return (
@@ -39,6 +53,7 @@ const LoginPage = () => {
             label="Contraseña"
             variant="outlined"
             className=" w-full "
+            type="password"
             size="small"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -55,9 +70,18 @@ const LoginPage = () => {
         </div>
 
         <div className="mt-5 w-full">
-          <CustomButton variant="primary">Iniciar sesión</CustomButton>
+          <CustomButton variant="primary" type="submit">
+            Iniciar sesión
+          </CustomButton>
         </div>
       </form>
+
+      <CustomToast
+        open={!!error}
+        message={error || ''}
+        severity="error"
+        handleClose={() => router.push('/login')}
+      />
     </div>
   );
 };
