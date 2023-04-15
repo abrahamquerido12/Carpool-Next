@@ -1,5 +1,5 @@
 import { compare } from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 import prisma from './prisma';
 
 export type Credentials = {
@@ -21,9 +21,13 @@ export async function login(credentials: any) {
     if (!passwordValid) {
       throw new Error('Invalid password');
     }
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET as Secret,
+      {
+        expiresIn: '7d',
+      }
+    );
     return {
       token,
       user,
