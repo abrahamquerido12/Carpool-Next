@@ -1,5 +1,8 @@
+import searchImg from '@/../public/search.svg';
+import CustomButton from '@/components/Button';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import { UserContext } from '../../contexts/userCtx';
@@ -11,12 +14,14 @@ interface DriverHomeProps {
 }
 
 const DriverHome = (props: DriverHomeProps) => {
+  const {
+    user: { Passenger },
+  } = props;
+
+  const trips = Passenger?.trips;
+
   const router = useRouter();
   const { firstName, firstLastName } = useContext(UserContext);
-
-  const addCar = () => {
-    router.push('/driver/add-car');
-  };
 
   return (
     <MainLayout>
@@ -31,7 +36,27 @@ const DriverHome = (props: DriverHomeProps) => {
           <div className="w-full h-0.5 bg-cxGray"></div>
         </div>
 
-        <div></div>
+        <div className="text-center flex justify-center itmes-center mt-5">
+          {!trips?.length && (
+            <div>
+              <Image
+                src={searchImg}
+                height={300}
+                width={300}
+                alt="search image"
+              />
+
+              <h3 className="mt-3">No se encontraron viajes activos</h3>
+              <div className="mt-5">
+                <CustomButton
+                onClick={
+                  ()=>router.push("/passenger/search-trips.tsx")
+                }
+                variant="primary">Buscar Viajes</CustomButton>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </MainLayout>
   );
@@ -54,8 +79,12 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     where: {
       email: session.user.email,
     },
-    include: {
+    select: {
+      id: true,
+      email: true,
       Passenger: true,
+      isDriver: true,
+      profile: true,
     },
   });
 
