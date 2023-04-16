@@ -1,8 +1,9 @@
+//@ts-nocheck
+
 /* eslint-disable no-unused-vars */
 
 import prisma from '@/lib/prisma';
 import * as argon from 'argon2';
-import jwt from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -58,58 +59,6 @@ export const options = {
 
         if (!valid) {
           throw new Error(LOGIN_ERROR);
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-        };
-      },
-    }),
-    CredentialsProvider({
-      id: 'token',
-      name: 'Token',
-
-      credentials: {
-        token: {
-          label: 'Verification Token',
-          type: 'string',
-        },
-      },
-      async authorize(credentials, _req) {
-        let user;
-        try {
-          const { id } = await jwt.decode(credentials?.token);
-          user = await prisma.user.findUnique({
-            where: {
-              id,
-            },
-          });
-        } catch (e) {
-          throw Error('Internal server error. Please try again later');
-        }
-
-        if (!user) {
-          throw new Error('Error de autenticación');
-        }
-
-        if (user.emailVerified) {
-          throw new Error('Email already verified');
-        }
-
-        const isValid = await new Promise((resolve) => {
-          jwt.verify(
-            credentials?.token,
-            serverRuntimeConfig.JWT_SECRET + user.email,
-            (err) => {
-              if (err) resolve(false);
-              if (!err) resolve(true);
-            }
-          );
-        });
-
-        if (!isValid) {
-          throw new Error('Token is not valid or expired');
         }
 
         return {
