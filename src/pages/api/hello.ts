@@ -9,5 +9,8 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  // log db url
+  console.log(process.env.DATABASE_URL);
+
   res.status(200).json({ name: 'John Doe' });
 }
