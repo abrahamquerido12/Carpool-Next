@@ -11,6 +11,9 @@ import { StepOne, StepTwo } from '../components/singup';
 
 import { setTimeout } from 'timers';
 
+// log db url from .env
+console.log(process.env.NEXT_PUBLIC_DB_URL);
+
 const signupSteps = [
   {
     title: '',

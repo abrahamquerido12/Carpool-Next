@@ -36,6 +36,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
+  console.log(session.user);
+  
+
   if (session.user.isDriver === null) {
     return {
       redirect: {
@@ -49,6 +52,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     return {
       redirect: {
         destination: '/driver',
+        permanent: false,
+      },
+    };
+  } else if (!session.user.isDriver) {
+    return {
+      redirect: {
+        destination: '/passenger',
         permanent: false,
       },
     };
