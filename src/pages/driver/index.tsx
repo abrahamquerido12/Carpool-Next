@@ -14,13 +14,18 @@ interface DriverHomeProps {
 const DriverHome = (props: DriverHomeProps) => {
   const { driver } = props;
   const driverObj = JSON.parse(driver);
-  const car = driverObj?.car;
+  const { car, weeklyTrips } = driverObj || {};
+
+  console.log('weeklyTrips', weeklyTrips);
 
   const router = useRouter();
   const { firstName, firstLastName } = useContext(UserContext);
 
   const addCar = () => {
     router.push('/driver/add-car');
+  };
+  const addWeeklyTrips = () => {
+    router.push('/driver/weekly-trips');
   };
 
   return (
@@ -43,6 +48,14 @@ const DriverHome = (props: DriverHomeProps) => {
               description="No has configurado un vehículo. Por favor, configura tu vehículo para poder continuar."
               buttonLabel="Agregar"
               onBtnClick={addCar}
+            />
+          )}
+          {!weeklyTrips?.length && (
+            <MissingDataCard
+              title="No hay viajes programados"
+              description="No tienes viajes programados para esta semana. Por favor, configura tus viajes para poder continuar."
+              buttonLabel="Agregar"
+              onBtnClick={addWeeklyTrips}
             />
           )}
         </div>
@@ -72,6 +85,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       driver: {
         include: {
           car: true,
+          weeklyTrips: true,
         },
       },
     },

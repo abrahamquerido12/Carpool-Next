@@ -10,6 +10,7 @@ import CustomToast from '../../components/CustomToast';
 import FilteredSelect from '../../components/FilteredSelect';
 import { saveCarData } from '../../lib/driverReqs';
 import { CarDto } from '../../lib/driverReqs/driverTypes';
+import prisma from '../../lib/prisma';
 
 const colors = [
   'Rojo',
@@ -26,11 +27,15 @@ const colors = [
 
 interface AddCarPageProps {
   carBrands: string[];
+  driver: any;
 }
 
 const AddCarPage = (props: AddCarPageProps) => {
   const router = useRouter();
-  const { carBrands } = props;
+  const {
+    carBrands,
+    driver: { car },
+  } = props;
 
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -38,13 +43,13 @@ const AddCarPage = (props: AddCarPageProps) => {
 
   const [carModels, setCarModels] = useState<string[]>([]);
 
-  const [carBrand, setCarBrand] = useState<string | null>(null);
-  const [carModel, setCarModel] = useState<string | null>(null);
-  const [placa, setPlaca] = useState<string | null>(null);
+  const [carBrand, setCarBrand] = useState<string | null>(car?.brand || null);
+  const [carModel, setCarModel] = useState<string | null>(car?.model || null);
+  const [placa, setPlaca] = useState<string | null>(car?.plate || null);
 
-  const [color, setColor] = useState<string | null>(null);
+  const [color, setColor] = useState<string | null>(car?.color || null);
 
-  const [seat, setSeats] = useState<string | null>(null);
+  const [seat, setSeats] = useState<string | null>(car?.seats || null);
 
   const handleCarBrandChange = (value: string) => {
     setCarBrand(value);
@@ -167,7 +172,7 @@ const AddCarPage = (props: AddCarPageProps) => {
 
           <div className="w-full mt-5">
             <CustomButton variant="primary" type="submit">
-              Registrar
+              {car ? 'Actualizar' : 'Registrar'}
             </CustomButton>
           </div>
         </form>
@@ -208,12 +213,24 @@ export const getServerSideProps: GetServerSideProps = async (
     };
   }
 
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    include: {
+      driver: {
+        include: {
+          car: true,
+        },
+      },
+    },
+  });
+
   const carBrands = cars.map((car) => car.brand);
 
   return {
     props: {
       session,
       carBrands,
+      driver: JSON.parse(JSON.stringify(user?.driver)),
     },
   };
 };

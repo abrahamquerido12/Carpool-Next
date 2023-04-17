@@ -30,8 +30,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if (!user) throw new Error('User not found');
       if (!user?.isDriver) throw new Error('User is not a driver');
 
-      const car = await prisma.car.create({
-        data: {
+      const car = await prisma.car.upsert({
+        where: {
+          driverId: driver?.id,
+        },
+        update: {
+          model: data.model,
+          brand: data.brand,
+          color: data.color,
+          seats: data.seats,
+          plate: data.plate,
+        },
+        create: {
           model: data.model,
           brand: data.brand,
           color: data.color,
