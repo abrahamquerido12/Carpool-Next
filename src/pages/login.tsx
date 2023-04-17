@@ -64,7 +64,7 @@ const LoginPage = () => {
 
         <div>
           <span>¿No tienes cuenta? </span>
-          <Link href="/sing-up" className="underline">
+          <Link href="/sign-up" className="underline">
             Registrate aquí
           </Link>
         </div>

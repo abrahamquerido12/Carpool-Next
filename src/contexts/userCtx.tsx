@@ -18,6 +18,8 @@ export interface UserContextProps {
   phone?: string;
   passengerId?: number | null;
 
+  loading: boolean;
+
   setId: Dispatch<SetStateAction<number | null>>;
   setEmail: Dispatch<SetStateAction<string>>;
   setIsDriver: Dispatch<SetStateAction<boolean | null>>;
@@ -39,6 +41,7 @@ export const UserContext = createContext<UserContextProps>({
   secondLastName: '',
   phone: '',
   passengerId: null,
+  loading: false,
   setId: () => {},
   setEmail: () => {},
   setIsDriver: () => {},
@@ -51,6 +54,8 @@ export const UserContext = createContext<UserContextProps>({
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const [loading, setLoading] = useState(true);
+
   const [id, setId] = useState<number | null>(null);
   const [email, setEmail] = useState('');
   const [isDriver, setIsDriver] = useState<boolean | null>(null);
@@ -81,6 +86,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setPhone,
       passengerId,
       setPassengerId,
+      loading,
     }),
     [
       id,
@@ -101,15 +107,13 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setPhone,
       passengerId,
       setPassengerId,
+      loading,
     ]
   );
 
   const getUserData = async () => {
     const res = await fetch('/api/user');
     const data = await res.json();
-    console.log({
-      data,
-    });
 
     if (data) {
       setId(data.id);
@@ -121,6 +125,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       setSecondLastName(data.profile?.secondLastName || '');
       setPhone(data.profile?.phone || '');
     }
+    setLoading(false);
   };
 
   useEffect(() => {

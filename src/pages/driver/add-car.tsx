@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import CustomButton from '../../components/Button';
 import CustomToast from '../../components/CustomToast';
 import FilteredSelect from '../../components/FilteredSelect';
+import GoBackHeader from '../../components/GoBackHeader';
 import { saveCarData } from '../../lib/driverReqs';
 import { CarDto } from '../../lib/driverReqs/driverTypes';
 import prisma from '../../lib/prisma';
@@ -119,6 +120,7 @@ const AddCarPage = (props: AddCarPageProps) => {
   return (
     <MainLayout>
       <div className="w-full flex flex-col justify-start items-start md:w-1/2">
+        <GoBackHeader onClick={() => router.push('/driver')} />
         <h1 className="text-[1.5rem] text-cxBlue font-semibold mt-5 ">
           Registrar Vehículo
         </h1>

@@ -12,7 +12,7 @@ const MissingDataCard = ({
   onBtnClick,
 }: MissingCardProps) => {
   return (
-    <div className="w-full rounded-md border border-gray-300 p-3   ">
+    <div className="w-full rounded-md border border-gray-300 p-3 my-5  ">
       <h1 className="text-lg  text-cxBlue font-semibold md:w-1/2 my-1">
         {title}
       </h1>

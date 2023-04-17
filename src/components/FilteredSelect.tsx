@@ -19,6 +19,7 @@ export default function FilteredSelect(props: FilteredSelectProps) {
       id="combo-box-demo"
       value={props.value}
       options={props.options}
+      getOptionLabel={(option) => option.toString() || ''}
       renderInput={(params) => (
         <TextField
           {...params}

@@ -10,6 +10,7 @@ import HorizontalNonLinearStepper from '../components/Stepper';
 import { StepOne, StepTwo } from '../components/singup';
 
 import { setTimeout } from 'timers';
+import CustomBackdrop from '../components/CustomBackdrop';
 
 // log db url from .env
 console.log(process.env.NEXT_PUBLIC_DB_URL);
@@ -28,6 +29,8 @@ const signupSteps = [
 const SignUpPage = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
@@ -129,15 +132,20 @@ const SignUpPage = () => {
       password,
       phoneNumber: phone,
     };
+    setLoading(true);
     const response = await axios.post('/api/user', data);
     if (response.status === 201) {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
+
+      setLoading(false);
       setMessage('Usuario creado correctamente');
       setSeverity('success');
       setOpen(true);
     } else {
+      setLoading(false);
+
       setMessage('Error al crear usuario');
       setSeverity('error');
       setOpen(true);
@@ -180,6 +188,7 @@ const SignUpPage = () => {
         severity={severity as 'success' | 'error' | 'info' | 'warning'}
         handleClose={() => setOpen(false)}
       />
+      <CustomBackdrop open={loading} />
     </div>
   );
 };
