@@ -1,6 +1,4 @@
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
-import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import IconButton from '@mui/material/IconButton';
 import { signOut } from 'next-auth/react';
@@ -10,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-const DriverHeader = () => {
+const PassengerHeader = () => {
   const router = useRouter();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -43,17 +41,6 @@ const DriverHeader = () => {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={() => router.push('/driver/weekly-trips')}>
-          <EventRepeatIcon fontSize="small" className="text-cxBlue mr-2" />
-          Viajes semanales
-        </MenuItem>
-        <MenuItem onClick={() => router.push('/driver/add-car')}>
-          <DirectionsCarFilledOutlinedIcon
-            fontSize="small"
-            className="text-cxBlue mr-2"
-          />
-          Mi vehículo
-        </MenuItem>
         <MenuItem onClick={handleSignout}>
           <ExitToAppOutlinedIcon
             fontSize="small"
@@ -66,4 +53,4 @@ const DriverHeader = () => {
   );
 };
 
-export default DriverHeader;
+export default PassengerHeader;

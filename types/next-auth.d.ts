@@ -9,6 +9,7 @@ declare module 'next-auth' {
     user: {
       email: any;
       isDriver: null;
+      isUserTypeSelected: boolean;
     };
   }
 }

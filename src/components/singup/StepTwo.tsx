@@ -21,6 +21,7 @@ const StepTwo = () => {
         <TextField
           label="Teléfono"
           variant="outlined"
+          name="phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           className="w-full"
@@ -33,6 +34,8 @@ const StepTwo = () => {
           label="Correo"
           variant="outlined"
           value={email}
+          name="email"
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
           className="w-full"
           size="small"
@@ -43,6 +46,7 @@ const StepTwo = () => {
         <TextField
           label="Contraseña"
           variant="outlined"
+          name="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full"
@@ -55,6 +59,7 @@ const StepTwo = () => {
         <TextField
           label="Confirmar contraseña"
           variant="outlined"
+          name="confirm_password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full"

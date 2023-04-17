@@ -136,7 +136,8 @@ const SignUpPage = () => {
     const response = await axios.post('/api/user', data);
     if (response.status === 201) {
       setTimeout(() => {
-        router.push('/login');
+        // add email to url query params
+        router.push(`/login?email=${email}`);
       }, 2000);
 
       setLoading(false);
@@ -177,10 +178,6 @@ const SignUpPage = () => {
             Inicia sesión aquí
           </Link>
         </div>
-
-        {/* <div className="mt-5 w-full">
-          <CustomButton variant="primary">Iniciar sesión</CustomButton>
-        </div> */}
       </form>
       <CustomToast
         open={open}

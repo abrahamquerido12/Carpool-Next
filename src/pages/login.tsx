@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import CustomButton from '../components/Button';
+import CustomBackdrop from '../components/CustomBackdrop';
 import CustomToast from '../components/CustomToast';
 
 const LoginPage = () => {
@@ -13,20 +14,22 @@ const LoginPage = () => {
 
   //get message from query
   const error = router.query.error?.toString();
-
+  const emailFromQuery = router.query.email?.toString();
   //   const { user, login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailFromQuery || '');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('submit');
+    setLoading(true);
 
     await signIn('credentials', {
       callbackUrl: router.query.callbackUrl?.toString() || '/',
       email,
       password,
     });
+    setLoading(false);
   };
 
   return (
@@ -42,6 +45,8 @@ const LoginPage = () => {
           <TextField
             label="Correo"
             variant="outlined"
+            name="email"
+            type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             className=" w-full "
@@ -53,6 +58,7 @@ const LoginPage = () => {
             label="Contraseña"
             variant="outlined"
             className=" w-full "
+            name="password"
             type="password"
             size="small"
             value={password}
@@ -82,6 +88,7 @@ const LoginPage = () => {
         severity="error"
         handleClose={() => router.push('/login')}
       />
+      <CustomBackdrop open={loading} />
     </div>
   );
 };
