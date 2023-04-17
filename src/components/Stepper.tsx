@@ -53,6 +53,7 @@ export default function HorizontalNonLinearStepper({
     if (isLastStep() && actionOnFinish) {
       return actionOnFinish();
     }
+
     setCompleted({ ...completed, [activeStep]: true });
     setActiveStep(newActiveStep);
   };
@@ -89,9 +90,16 @@ export default function HorizontalNonLinearStepper({
               Atrás
             </Button>
             <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleNext} sx={{ mr: 1 }}>
-              {isLastStep() && labelOnLastStep ? labelOnLastStep : 'Siguiente'}
-            </Button>
+            {activeStep === 0 && (
+              <Button onClick={handleNext} sx={{ mr: 1 }}>
+                Siguiente
+              </Button>
+            )}
+            {activeStep === 1 && (
+              <Button sx={{ mr: 1 }} type="submit">
+                Registrarse
+              </Button>
+            )}
           </Box>
         </React.Fragment>
       </div>

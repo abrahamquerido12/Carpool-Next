@@ -15,7 +15,7 @@ model User {
   email    String @unique
   password String
 
-  isDriver  Boolean  @default(false)
+  isDriver  Boolean?  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -27,7 +27,7 @@ model User {
 model Profile {
   id Int @id @default(autoincrement())
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   firstName      String
@@ -37,19 +37,21 @@ model Profile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  
 }
 
 model Driver {
   id Int @id @default(autoincrement())
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   car Car?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  Trip      Trip[]
+  trips      Trip[]
 
   weeklyTrips WeeklyTrip[]
 }
@@ -57,7 +59,7 @@ model Driver {
 model WeeklyTrip {
   id Int @id @default(autoincrement())
 
-  driver   Driver @relation(fields: [driverId], references: [id])
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
   driverId Int
 
   dayOfWeek DayOfWeek
@@ -87,7 +89,7 @@ enum DayOfWeek {
 model Passenger {
   id Int @id @default(autoincrement())
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   createdAt   DateTime      @default(now())
@@ -100,7 +102,7 @@ model Passenger {
 model Car {
   id Int @id @default(autoincrement())
 
-  driver   Driver @relation(fields: [driverId], references: [id])
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
   driverId Int    @unique
 
   brand String
@@ -116,7 +118,7 @@ model Car {
 model Trip {
   id Int @id @default(autoincrement())
 
-  driver   Driver @relation(fields: [driverId], references: [id])
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
   driverId Int
 
   // up to no. of seats in car passenger can be added
@@ -146,7 +148,7 @@ enum TripStatus {
 model TripRequest {
   id Int @id @default(autoincrement())
 
-  passenger   Passenger @relation(fields: [passengerId], references: [id])
+  passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
   passengerId Int
 
   trip   Trip @relation(fields: [tripId], references: [id])
