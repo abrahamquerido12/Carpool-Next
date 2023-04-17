@@ -17,6 +17,7 @@ const StepOne = () => {
       <div className="w-full my-2">
         <TextField
           label="Nombre"
+          name="name"
           variant="outlined"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
@@ -29,6 +30,7 @@ const StepOne = () => {
         <TextField
           label="Apellido Paterno"
           variant="outlined"
+          name="last_name"
           value={firstLastName}
           onChange={(e) => setFirstLastName(e.target.value)}
           className="w-full"
@@ -40,6 +42,7 @@ const StepOne = () => {
         <TextField
           label="Apellido Materno"
           variant="outlined"
+          name="second_last_name"
           value={secondLastName}
           onChange={(e) => setSecondLastName(e.target.value)}
           className="w-full"

@@ -1,3 +1,4 @@
+import { useSession } from 'next-auth/react';
 import {
   Dispatch,
   SetStateAction,
@@ -54,6 +55,7 @@ export const UserContext = createContext<UserContextProps>({
 });
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const session = useSession();
   const [loading, setLoading] = useState(true);
 
   const [id, setId] = useState<number | null>(null);
@@ -112,6 +114,8 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const getUserData = async () => {
+    if (!session || session.status !== 'authenticated') return;
+
     const res = await fetch('/api/user');
     const data = await res.json();
 
@@ -132,7 +136,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (!id) {
       getUserData();
     }
-  }, [id]);
+  }, [id, session]);
 
   return <UserContext.Provider value={values}>{children}</UserContext.Provider>;
 };

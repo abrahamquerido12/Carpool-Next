@@ -75,7 +75,7 @@ const DriverHome = (props: DriverHomeProps) => {
           </>
         ) : (
           <h1 className="text-[2rem]  text-cxBlue font-semibold ">
-            Bienvenido, {firstName?.toUpperCase()}{' '}
+            Bienvenido, <br /> {firstName?.toUpperCase()}{' '}
             {firstLastName?.toUpperCase()}
           </h1>
         )}
@@ -114,7 +114,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         include: {
           car: true,
           weeklyTrips: true,
-          Trip: true,
+          trips: true,
         },
       },
     },

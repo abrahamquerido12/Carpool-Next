@@ -89,6 +89,7 @@ export const options = {
         });
         session.user.id = user?.id;
         session.user.isDriver = user?.isDriver;
+        session.user.isUserTypeSelected = user?.isUserTypeSelected;
       }
 
       return session;

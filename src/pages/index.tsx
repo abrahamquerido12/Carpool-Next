@@ -37,9 +37,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   }
 
   console.log(session.user);
-  
 
-  if (session.user.isDriver === null) {
+  if (!session.user.isUserTypeSelected) {
     return {
       redirect: {
         destination: '/user-type',
