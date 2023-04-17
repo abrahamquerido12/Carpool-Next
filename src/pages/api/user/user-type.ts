@@ -1,7 +1,7 @@
 // protected route
-import prisma from '@/lib/prisma';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
+import prisma from '../../../lib/prisma';
 import { options } from '../auth/[...nextauth]';
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
