@@ -9,8 +9,10 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+export type severity = 'success' | 'error' | 'info' | 'warning';
+
 interface CustomToastProps {
-  severity: 'success' | 'error' | 'info' | 'warning';
+  severity: severity;
   message: string;
   open: boolean;
   handleClose: (event?: React.SyntheticEvent | Event, reason?: string) => void;

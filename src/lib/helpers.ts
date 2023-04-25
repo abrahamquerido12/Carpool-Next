@@ -1,4 +1,5 @@
 import { WeeklyTrip } from '@prisma/client';
+import { place } from '../../types/trips';
 
 export function formatPlaca(val: string): string {
   let value = val;
@@ -35,6 +36,10 @@ export const weekdays = [
   },
 ];
 
+export const englishToSpanishWeekdays = (day: string) => {
+  return weekdays.find((weekday) => weekday.value === day)?.label;
+};
+
 // function to group trips per weekday
 // function will recieve array of trips and should return object with weekdays as keys and array of trips as values
 export const groupTrips = (trips: WeeklyTrip[]) => {
@@ -51,4 +56,10 @@ export const groupTrips = (trips: WeeklyTrip[]) => {
   });
 
   return groupedTrips;
+};
+
+export const CetiData: place = {
+  description: 'CETI',
+  latitude: 20.702184,
+  longitude: -103.3888693,
 };

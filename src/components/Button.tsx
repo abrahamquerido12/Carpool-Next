@@ -15,7 +15,7 @@ export default function CustomButton({
   const buttonClasses = () => {
     if (variant === 'primary') {
       return 'bg-cxBlue text-white p-2 py-3 rounded-md shadow-sm w-full';
-    } else return 'bg-cxGray text-white p-2 py-3 rounded-md shadow-sm w-full';
+    } else return 'bg-gray-400 text-white p-2 py-3 rounded-md shadow-sm w-full';
   };
   return (
     <button
