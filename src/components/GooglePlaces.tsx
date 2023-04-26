@@ -2,6 +2,7 @@
 import Autocomplete from '@mui/material/Autocomplete';
 
 import TextField from '@mui/material/TextField';
+import Script from 'next/script';
 import { useState } from 'react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 import usePlacesAutocomplete, {
@@ -28,7 +29,9 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
     suggestions: { data },
     setValue,
     clearSuggestions,
+    init,
   } = usePlacesAutocomplete({
+    initOnMount: false,
     requestOptions: {
       componentRestrictions: {
         country: 'MX',
@@ -70,8 +73,15 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
     };
 
   const flatPlaces = data.map((item) => item.description);
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+
   return (
     <div ref={ref} className="w-full">
+      <Script
+        type="text/javascript"
+        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`}
+        onReady={init}
+      />
       <Autocomplete
         disabled={disabled}
         disablePortal
