@@ -75,6 +75,8 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
   const flatPlaces = data.map((item) => item.description);
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 
+  console.log(apiKey);
+
   return (
     <div ref={ref} className="w-full">
       <Script
