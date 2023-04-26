@@ -20,9 +20,9 @@ interface Props {
   placeholder?: string;
   disabled?: boolean;
 }
-const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
   const [searchValue, setSearchValue] = useState('');
   const [places, setPlaces] = useState([]);
 
