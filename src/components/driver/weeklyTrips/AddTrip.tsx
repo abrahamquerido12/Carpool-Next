@@ -18,9 +18,15 @@ interface Props {
 }
 
 const AddWeeklyTrip = ({ day, dayVal }: Props) => {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string,
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string;
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: apiKey,
     libraries: ['places'],
+  });
+
+  console.log({
+    loadError,
+    apiKey,
   });
 
   const { refreshData } = useContext(WeeklyTripsContext);
