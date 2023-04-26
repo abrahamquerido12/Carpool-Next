@@ -74,7 +74,7 @@ export const getServerSideProps: GetServerSideProps = async (
       },
     };
   }
-  if (session.user.isDriver !== null) {
+  if (session.user.isUserTypeSelected) {
     return {
       redirect: {
         destination: '/',
