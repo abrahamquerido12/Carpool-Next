@@ -3,7 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 import TextField from '@mui/material/TextField';
 import Script from 'next/script';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 import usePlacesAutocomplete, {
   getGeocode,
@@ -20,12 +20,11 @@ interface Props {
   placeholder?: string;
   disabled?: boolean;
 }
+const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
 
 const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const [places, setPlaces] = useState([]);
-
-  const [apiKey, setApiKey] = useState('');
 
   const {
     suggestions: { data },
@@ -75,25 +74,14 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
     };
 
   const flatPlaces = data.map((item) => item.description);
-  const val = process.env.GOOGLE_PLACES_API_KEY;
-
-  useEffect(() => {
-    if (val) {
-      setApiKey(val);
-    }
-  }, [val]);
-
-  console.log(apiKey);
 
   return (
     <div ref={ref} className="w-full">
-      {apiKey && (
-        <Script
-          type="text/javascript"
-          src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`}
-          onReady={init}
-        />
-      )}
+      <Script
+        type="text/javascript"
+        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`}
+        onReady={init}
+      />
       <Autocomplete
         disabled={disabled}
         disablePortal
