@@ -6,6 +6,7 @@ import prisma from '@/lib/prisma';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import Script from 'next/script';
 import { createContext, useMemo } from 'react';
 
 export const WeeklyTripsContext = createContext<{
@@ -19,8 +20,8 @@ interface Props {
 }
 
 const WeeklyTrips = ({ trips: rawTrips }: Props) => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
   const router = useRouter();
-
   const trips = useMemo(() => {
     if (!rawTrips) return [];
     return groupTrips(rawTrips);
@@ -46,6 +47,10 @@ const WeeklyTrips = ({ trips: rawTrips }: Props) => {
 
   return (
     <MainLayout>
+      <Script
+        type="text/javascript"
+        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`}
+      />
       <WeeklyTripsContext.Provider value={{ refreshData: refetchProps }}>
         <div className="w-full md:w-1/2">
           <GoBackHeader onClick={() => router.push('/driver')} />
