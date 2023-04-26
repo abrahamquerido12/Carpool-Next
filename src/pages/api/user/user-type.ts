@@ -27,7 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // update user in db
     const user = await prisma.user.update({
       where: { email },
-      data: { isDriver },
+      data: { isDriver, isUserTypeSelected: true },
     });
 
     // create driver model if isDriver is true
