@@ -28,9 +28,7 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
     suggestions: { data },
     setValue,
     clearSuggestions,
-    init,
   } = usePlacesAutocomplete({
-    initOnMount: false,
     requestOptions: {
       componentRestrictions: {
         country: 'MX',
