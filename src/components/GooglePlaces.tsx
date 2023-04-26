@@ -2,7 +2,6 @@
 import Autocomplete from '@mui/material/Autocomplete';
 
 import TextField from '@mui/material/TextField';
-import { useLoadScript } from '@react-google-maps/api';
 import { useState } from 'react';
 import useOnclickOutside from 'react-cool-onclickoutside';
 import usePlacesAutocomplete, {
@@ -24,11 +23,6 @@ interface Props {
 const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
   const [searchValue, setSearchValue] = useState('');
   const [places, setPlaces] = useState([]);
-
-  useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string,
-    libraries: ['places'],
-  });
 
   const {
     suggestions: { data },

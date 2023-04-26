@@ -1,5 +1,6 @@
 import { place } from '@/../types/trips';
 import { CetiData } from '@/lib/helpers';
+import { useLoadScript } from '@react-google-maps/api';
 import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useContext } from 'react';
@@ -17,6 +18,11 @@ interface Props {
 }
 
 const AddWeeklyTrip = ({ day, dayVal }: Props) => {
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string,
+    libraries: ['places'],
+  });
+
   const { refreshData } = useContext(WeeklyTripsContext);
   const [saving, setSaving] = React.useState(false);
   const [open, setOpen] = React.useState(false);
@@ -153,21 +159,24 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
 
           <div className="flex flex-col items-start justify-center w-full">
             <span className="text-gray-500">Origen</span>
-            <TextOrCeti
-              isCeti={isOriginCeti}
-              onCetiChange={onOriginCetiChange}
-              value={origin}
-              onChange={onOriginChange}
-            />
+            {isLoaded && (
+              <TextOrCeti
+                isCeti={isOriginCeti}
+                onCetiChange={onOriginCetiChange}
+                value={origin}
+                onChange={onOriginChange}
+              />
+            )}
 
             <span className="text-gray-500 mt-4">Destino</span>
-            <TextOrCeti
-              isCeti={isDestinationCeti}
-              onCetiChange={onDestinationCetiChange}
-              value={destination}
-              onChange={onDestinationChange}
-            />
-
+            {isLoaded && (
+              <TextOrCeti
+                isCeti={isDestinationCeti}
+                onCetiChange={onDestinationCetiChange}
+                value={destination}
+                onChange={onDestinationChange}
+              />
+            )}
             <span>Hora de salida</span>
             <CustomTimePicker setValue={onTimeChange} value={departureTime} />
 
