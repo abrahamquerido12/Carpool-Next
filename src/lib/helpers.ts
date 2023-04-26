@@ -35,6 +35,15 @@ export const weekdays = [
     label: 'Viernes',
   },
 ];
+export const weekdaysForTripSearch = [
+  'SUNDAY',
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+];
 
 export const englishToSpanishWeekdays = (day: string) => {
   return weekdays.find((weekday) => weekday.value === day)?.label;

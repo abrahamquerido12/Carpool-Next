@@ -4,12 +4,12 @@ import { useLoadScript } from '@react-google-maps/api';
 import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useContext } from 'react';
+import { UseToastContext } from '../../../layouts/MainLayout';
 import { WeeklyTripsContext } from '../../../pages/driver/weekly-trips';
 import CustomButton from '../../Button';
 import CustomBackdrop from '../../CustomBackdrop';
 import CustomDialog from '../../CustomFormDialog';
 import CustomTimePicker from '../../CustomTimePicker';
-import CustomToast, { severity } from '../../CustomToast';
 import TextOrCeti from '../../TextOrCeti';
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
 
 const AddWeeklyTrip = ({ day, dayVal }: Props) => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string;
+  const { openToast } = useContext(UseToastContext);
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: apiKey,
     libraries: ['places'],
@@ -27,14 +28,6 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
   const { refreshData } = useContext(WeeklyTripsContext);
   const [saving, setSaving] = React.useState(false);
   const [open, setOpen] = React.useState(false);
-
-  const [toastOpen, setToastOpen] = React.useState(false);
-  const [toastMessage, setToastMessage] = React.useState('');
-  const [toastSeverity, setToastSeverity] = React.useState('');
-
-  const handleToastClose = () => {
-    setToastOpen(false);
-  };
 
   const [origin, setOrigin] = React.useState<place>({
     description: '',
@@ -100,18 +93,15 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
     setSaving(true);
 
     if (!origin.description || !destination.description) {
-      setToastMessage('Favor de agregar origen y destino válidos');
-      setToastSeverity('error');
-      setToastOpen(true);
+      openToast('Favor de agregar origen y destino válidos', 'error');
       setSaving(false);
       return;
     }
 
     // check if origin and destination are the same
     if (origin.description === destination.description) {
-      setToastMessage('Origen y destino deben ser diferentes');
-      setToastSeverity('error');
-      setToastOpen(true);
+      openToast('Origen y destino deben ser diferentes', 'error');
+
       setSaving(false);
       return;
     }
@@ -125,24 +115,16 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
       dayOfWeek: dayVal,
     };
 
-    console.log({
-      payload,
-    });
-
     const response = await axios.post('/api/driver/weeklytrip', payload);
     if (response.status === 201) {
-      setToastMessage('Viaje semanal agregado');
-      setToastSeverity('success');
-      setToastOpen(true);
+      openToast('Viaje semanal agregado', 'success');
 
       setSaving(false);
-      refreshData();
       onClose();
+      refreshData();
     } else {
-      setToastMessage('Error al agregar viaje semanal');
-      setToastSeverity('error');
+      openToast('Error al agregar viaje semanal', 'error');
 
-      setToastOpen(true);
       setSaving(false);
     }
   };
@@ -190,12 +172,6 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
         </div>
 
         <CustomBackdrop open={saving} />
-        <CustomToast
-          open={toastOpen}
-          handleClose={handleToastClose}
-          message={toastMessage}
-          severity={toastSeverity as severity}
-        />
       </CustomDialog>
     </div>
   );

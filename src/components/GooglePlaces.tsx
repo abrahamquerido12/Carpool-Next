@@ -57,7 +57,6 @@ const GooglePlaces = ({ place, onChange, placeholder, disabled }: Props) => {
       // Get latitude and longitude via utility functions
       getGeocode({ address: description }).then((results) => {
         const { lat, lng } = getLatLng(results[0]);
-        console.log('📍 Coordinates: ', { lat, lng });
 
         onChange({
           description,
