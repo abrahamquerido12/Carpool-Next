@@ -1,17 +1,18 @@
 import { useLoadScript } from '@react-google-maps/api';
-import axios from 'axios';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { place } from '../../../types/trips';
-import CustomButton from '../../components/Button';
-import CustomBackdrop from '../../components/CustomBackdrop';
-import CustomDatePicker from '../../components/CustomDatePicker';
-import CustomTimePicker from '../../components/CustomTimePicker';
-import GoBackHeader from '../../components/GoBackHeader';
-import TextOrCeti from '../../components/TextOrCeti';
-import MainLayout from '../../layouts/MainLayout';
-import { CetiData } from '../../lib/helpers';
+import { useContext, useState } from 'react';
+import { place } from '../../../../types/trips';
+import CustomButton from '../../../components/Button';
+import CustomBackdrop from '../../../components/CustomBackdrop';
+import CustomDatePicker from '../../../components/CustomDatePicker';
+import CustomTimePicker from '../../../components/CustomTimePicker';
+import GoBackHeader from '../../../components/GoBackHeader';
+import TextOrCeti from '../../../components/TextOrCeti';
+import MainLayout from '../../../layouts/MainLayout';
+import { CetiData } from '../../../lib/helpers';
+import { UseToastContext } from '../../_app';
+
 const SearchTripPage = () => {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string;
   const { isLoaded } = useLoadScript({
@@ -20,6 +21,7 @@ const SearchTripPage = () => {
   });
 
   const router = useRouter();
+  const { openToast } = useContext(UseToastContext);
 
   const [origin, setOrigin] = useState<place>({
     description: '',
@@ -67,14 +69,34 @@ const SearchTripPage = () => {
   };
 
   const handleClick = async () => {
-    const response = await axios.post('/api/trips/search', {
-      date: date.toDate(),
-      origin: {
-        description: 'CETI',
+    if (origin.description === 'CETI' && destination.description === 'CETI') {
+      openToast('Favor de ingresar un viaje válido', 'error');
+      return;
+    }
+
+    if (origin.description !== 'CETI' && destination.description !== 'CETI') {
+      openToast('Solo viajes con destino o origen CETI', 'error');
+      return;
+    }
+
+    const data = {
+      date: date.toISOString(),
+      origin: origin.description,
+      originCoordinates: `${origin.latitude},${origin.longitude}`,
+      destination: destination.description,
+      destinationCoordinates: `${destination.latitude},${destination.longitude}`,
+      departureTime: departureTime.toISOString(),
+    };
+
+    // const response = await axios.post('/api/trips/search', data);
+
+    // send to /results that is children on current route
+    router.push({
+      pathname: '/passenger/search-trips/results',
+      query: {
+        ...data,
       },
     });
-
-    console.log(response.data);
   };
 
   if (!isLoaded) {

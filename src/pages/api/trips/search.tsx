@@ -17,9 +17,22 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
     try {
       // expect to recieve optional query parameters such as
-      // origin, destination, date, departureTime
-      // if no query params, we'll just retrun all available trips from driver's weekly trips
-      const { origin, destination, date, departureTime } = req.body;
+
+      const {
+        origin,
+        originCoordinates,
+        destination,
+        destinationCoordinates,
+        date,
+        departureTime,
+      }: {
+        origin: string;
+        originCoordinates: string;
+        destination: string;
+        destinationCoordinates: string;
+        date: Date;
+        departureTime: Date;
+      } = req.body;
       // trips we'll be generated based on driver's weekly trips and query params
       let trips = await prisma.weeklyTrip.findMany({
         include: {
@@ -29,7 +42,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       if (date) {
         // get day of the week from date object
-        let day = new Date(date as string).getDay();
+        let day = new Date(date).getDay();
 
         // filter trips based on day of the week
         const dayOfWeekName = weekdaysForTripSearch[day];
@@ -45,21 +58,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       if (origin) {
-        console.log({
-          origin,
-        });
-
-        if (origin.description === 'CETI') {
+        if (origin === 'CETI') {
           trips = trips.filter((trip) => trip.origin === 'CETI');
         } else {
-          const [lat, lng] = (origin as string).split(',');
+          const [lat, long] = originCoordinates.split(',');
           const searchOrigin = {
             latitude: parseFloat(lat),
-            longitude: parseFloat(lng),
+            longitude: parseFloat(long),
           };
 
           // we'll search the closest trip to origin based on the latitude and longitude
-          trips = trips.filter((trip) => {
+          trips = trips.map((trip) => {
             const [tripLat, tripLng] = trip.originCoordinates.split(',');
             const tripOrigin = {
               latitude: parseFloat(tripLat),
@@ -67,11 +76,36 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             };
 
             const distance = getDistance(searchOrigin, tripOrigin);
+
+            return { ...trip, distance };
+          });
+        }
+      }
+
+      if (destination) {
+        if (destination === 'CETI') {
+          trips = trips.filter((trip) => trip.destination === 'CETI');
+        } else {
+          const [lat, long] = destinationCoordinates.split(',');
+          const searchDestination = {
+            latitude: parseFloat(lat),
+            longitude: parseFloat(long),
+          };
+
+          // we'll search the closest trip to origin based on the latitude and longitude
+          trips = trips.filter((trip) => {
+            const [tripLat, tripLng] = trip.destinationCoordinates.split(',');
+            const tripDestination = {
+              latitude: parseFloat(tripLat),
+              longitude: parseFloat(tripLng),
+            };
+
+            const distance = getDistance(searchDestination, tripDestination);
             console.log({
               distance,
             });
 
-            return trip;
+            return { ...trip, distance };
           });
         }
       }
