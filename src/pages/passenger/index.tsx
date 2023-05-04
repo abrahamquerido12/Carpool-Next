@@ -1,89 +1,66 @@
-import searchImg from '@/../public/search.svg';
-import CustomButton from '@/components/Button';
-import { Skeleton } from '@mui/material';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
+import CustomButton from '../../components/Button';
+import WelcomeUser from '../../components/WelcomeUser';
 import PassengerHeader from '../../components/passenger/PassengerHeader';
+import Trips from '../../components/passenger/home/Trips';
 import { UserContext } from '../../contexts/userCtx';
 import MainLayout from '../../layouts/MainLayout';
 import prisma from '../../lib/prisma';
 
-interface DriverHomeProps {
+interface PassengerHomeProps {
   user: any;
 }
 
-const DriverHome = (props: DriverHomeProps) => {
+const PassengerHome = (props: PassengerHomeProps) => {
   const {
     user: { Passenger },
   } = props;
 
-  const trips = Passenger?.trips;
+  const { TripRequest, trips } = Passenger || {};
+
+  const pendingTripRequests = TripRequest?.filter(
+    (req: any) => req.status === 'PENDING'
+  );
 
   const router = useRouter();
   const { firstName, firstLastName, loading } = useContext(UserContext);
 
   return (
     <MainLayout>
-      <div className="w-full md:w-1/2">
+      <div className="w-full md:w-1/2 flex flex-col h-full">
         <PassengerHeader />
-        {loading ? (
-          <>
-            <Skeleton
-              variant="rectangular"
-              width="100%"
-              height={30}
-              className="rounded-lg mt-2"
-            />
-            <Skeleton
-              variant="rectangular"
-              width="100%"
-              height={30}
-              className="rounded-lg mt-2"
-            />
-          </>
-        ) : (
-          <h1 className="text-[2rem]  text-cxBlue font-semibold ">
-            Bienvenido, <br /> {firstName?.toUpperCase()}{' '}
-            {firstLastName?.toUpperCase()}
-          </h1>
-        )}
+        <WelcomeUser
+          loading={loading}
+          firstLastName={firstLastName as string}
+          firstName={firstName as string}
+        />
         <div className="flex items-center justify-center my-5 w-full">
           <div className="w-full h-0.5 bg-cxGray"></div>
           <h2 className="text-gray-400 text-md font-normal mx-3">Viajes</h2>
           <div className="w-full h-0.5 bg-cxGray"></div>
         </div>
 
-        <div className="text-center flex justify-center itmes-center mt-5">
-          {!trips?.length && (
-            <div>
-              <Image
-                src={searchImg}
-                height={300}
-                width={300}
-                alt="search image"
-              />
+        <Trips trips={trips} pendingTripRequests={pendingTripRequests} />
 
-              <h3 className="mt-3">No se encontraron viajes activos</h3>
-              <div className="mt-5">
-                <CustomButton
-                  onClick={() => router.push('/passenger/search-trips')}
-                  variant="primary"
-                >
-                  Buscar Viajes
-                </CustomButton>
-              </div>
-            </div>
-          )}
+        <div className="mt-auto mb-10">
+          <CustomButton
+            onClick={() => router.push('/passenger/search-trips')}
+            variant="primary"
+          >
+            <SearchOutlinedIcon className="mr-1" />
+            Buscar Viajes
+          </CustomButton>
         </div>
       </div>
     </MainLayout>
   );
 };
 
-export default DriverHome;
+export default PassengerHome;
 
 export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
   const session = await getSession(ctx);
@@ -96,14 +73,26 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       },
     };
   }
-  const user = await prisma.user.findUnique({
+  let user = await prisma.user.findUnique({
     where: {
       email: session.user.email,
     },
     select: {
       id: true,
       email: true,
-      Passenger: true,
+      Passenger: {
+        include: {
+          TripRequest: {
+            include: {
+              trip: {
+                select: {
+                  weeklyTrip: true,
+                },
+              },
+            },
+          },
+        },
+      },
       isDriver: true,
       profile: true,
     },

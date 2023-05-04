@@ -6,18 +6,13 @@ import prisma from '@/lib/prisma';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
+import { createContext, useMemo } from 'react';
 
-const mockDay = {
-  title: 'Lunes',
-  trips: [
-    // {
-    //   origin: 'Origen',
-    //   destination: 'Destino',
-    //   departureTime: '12:00',
-    // },
-  ],
-};
+export const WeeklyTripsContext = createContext<{
+  refreshData: () => void;
+}>({
+  refreshData: () => {},
+});
 
 interface Props {
   trips: any;
@@ -25,33 +20,40 @@ interface Props {
 
 const WeeklyTrips = ({ trips: rawTrips }: Props) => {
   const router = useRouter();
-
   const trips = useMemo(() => {
     if (!rawTrips) return [];
     return groupTrips(rawTrips);
   }, [rawTrips]);
 
+  const refetchProps = () => {
+    router.replace(router.asPath);
+  };
+
   const renderDays = () => {
-    return weekdays.map((day, i) => {
+    return weekdays.map((day) => {
       return (
-        <Day
-          key={day.value}
-          trips={trips[day.value as keyof typeof trips]}
-          title={day.label}
-        />
+        <div className="my-2" key={day.value}>
+          <Day
+            trips={trips[day.value as keyof typeof trips]}
+            title={day.label}
+            dayVal={day.value}
+          />
+        </div>
       );
     });
   };
 
   return (
     <MainLayout>
-      <div className="w-full md:w-1/2">
-        <GoBackHeader onClick={() => router.push('/driver')} />
-        <h1 className="text-[2rem]  text-cxBlue font-semibold ">
-          Viajes Semanales
-        </h1>
-        {renderDays()}
-      </div>
+      <WeeklyTripsContext.Provider value={{ refreshData: refetchProps }}>
+        <div className="w-full md:w-1/2">
+          <GoBackHeader onClick={() => router.push('/driver')} />
+          <h1 className="text-[2rem]  text-cxBlue font-semibold ">
+            Viajes Semanales
+          </h1>
+          {renderDays()}
+        </div>
+      </WeeklyTripsContext.Provider>
     </MainLayout>
   );
 };

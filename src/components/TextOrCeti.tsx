@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 
-import { TextField } from '@mui/material';
+import { place } from '../../types/trips';
+import GooglePlaces from './GooglePlaces';
 
 interface Props {
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value: place;
+  onChange: (value: place) => void;
   isCeti?: boolean;
   onCetiChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -12,18 +14,15 @@ interface Props {
 const TextOrCeti = ({ value, onChange, isCeti, onCetiChange }: Props) => {
   return (
     <div className="flex flex-row items-center justify-start w-full mt-2">
-      <TextField
-        variant="outlined"
-        size="small"
-        type="text"
-        placeholder="Origen"
-        className="w-[70%] mr-2"
-        disabled={isCeti}
-        value={value}
-        onChange={(e) =>
-          onChange && onChange(e as React.ChangeEvent<HTMLInputElement>)
-        }
-      />
+      <div className="w-[70%] mr-2">
+        <GooglePlaces
+          placeholder="Origen"
+          place={value}
+          onChange={onChange}
+          disabled={isCeti}
+        />
+      </div>
+
       <div className="flex flex-row items-center justify-center w-[20%]">
         <input
           type="checkbox"

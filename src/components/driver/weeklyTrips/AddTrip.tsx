@@ -1,40 +1,84 @@
-import { DayOfWeek } from '@prisma/client';
-import axios from 'axios';
+import { place } from '@/../types/trips';
+import { CetiData } from '@/lib/helpers';
+import { useLoadScript } from '@react-google-maps/api';
 import dayjs, { Dayjs } from 'dayjs';
-import React from 'react';
+import React, { useContext } from 'react';
+import { addWeeklyTrip } from '../../../lib/api/driverReqs';
+import { UseToastContext } from '../../../pages/_app';
+import { WeeklyTripsContext } from '../../../pages/driver/weekly-trips';
 import CustomButton from '../../Button';
+import CustomBackdrop from '../../CustomBackdrop';
 import CustomDialog from '../../CustomFormDialog';
 import CustomTimePicker from '../../CustomTimePicker';
 import TextOrCeti from '../../TextOrCeti';
 
 interface Props {
   day: string;
+  dayVal: string;
 }
 
-const AddWeeklyTrip = ({ day }: Props) => {
+const AddWeeklyTrip = ({ day, dayVal }: Props) => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string;
+  const { openToast } = useContext(UseToastContext);
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: apiKey,
+    libraries: ['places'],
+  });
+
+  const { refreshData } = useContext(WeeklyTripsContext);
+  const [saving, setSaving] = React.useState(false);
   const [open, setOpen] = React.useState(false);
 
-  const [origin, setOrigin] = React.useState('');
-  const [destination, setDestination] = React.useState('');
+  const [origin, setOrigin] = React.useState<place>({
+    description: '',
+    latitude: 0,
+    longitude: 0,
+  });
+  const [destination, setDestination] = React.useState<place>({
+    description: '',
+    latitude: 0,
+    longitude: 0,
+  });
   const [isOriginCeti, setIsOriginCeti] = React.useState(false);
   const [isDestinationCeti, setIsDestinationCeti] = React.useState(false);
 
   const [departureTime, setDepartureTime] = React.useState(dayjs(new Date()));
 
-  const onOriginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrigin(e.target.value);
+  const onOriginChange = (value: place) => {
+    setOrigin(value);
   };
 
-  const onDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDestination(e.target.value);
+  const onDestinationChange = (value: place) => {
+    setDestination(value);
   };
 
   const onOriginCetiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsOriginCeti(e.target.checked);
+    // if is checked assign ceti data to origin
+    if (e.target.checked) {
+      setOrigin(CetiData);
+      setIsOriginCeti(true);
+    } else {
+      setIsOriginCeti(false);
+      setOrigin({
+        description: '',
+        latitude: 0,
+        longitude: 0,
+      });
+    }
   };
 
   const onDestinationCetiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsDestinationCeti(e.target.checked);
+    if (e.target.checked) {
+      setDestination(CetiData);
+      setIsDestinationCeti(true);
+    } else {
+      setIsDestinationCeti(false);
+      setDestination({
+        description: '',
+        latitude: 0,
+        longitude: 0,
+      });
+    }
   };
 
   const onTimeChange = (value: Dayjs) => {
@@ -46,49 +90,71 @@ const AddWeeklyTrip = ({ day }: Props) => {
   };
 
   const handleSave = async () => {
-    // endpoint /api/driver/weeklytrip
-    // lets to a mock object to test button and encpoint
-    const mockTrip = {
-      origin: 'origin',
-      originCoordinates: 'originCoordinates',
-      destination: 'destination',
-      destinationCoordinates: 'destinationCoordinates',
-      departureTime: new Date(),
-      dayOfWeek: DayOfWeek.MONDAY,
-    };
+    setSaving(true);
 
-    const response = await axios.post('/api/driver/weeklytrip', mockTrip);
-    console.log(response);
+    if (!origin.description || !destination.description) {
+      openToast('Favor de agregar origen y destino válidos', 'error');
+      setSaving(false);
+      return;
+    }
+
+    if (origin.description === destination.description) {
+      openToast('Origen y destino deben ser diferentes', 'error');
+      setSaving(false);
+      return;
+    }
+
+    const payload = {
+      origin: origin.description,
+      originCoordinates: `${origin.latitude},${origin.longitude}`,
+      destination: destination.description,
+      destinationCoordinates: `${destination.latitude}, ${destination.longitude}`,
+      departureTime: departureTime.toISOString(),
+      dayOfWeek: dayVal,
+    };
+    const response = await addWeeklyTrip(payload);
+    if (response.status === 201) {
+      openToast('Viaje semanal agregado', 'success');
+      setSaving(false);
+      onClose();
+      refreshData();
+    } else {
+      openToast('Error al agregar viaje semanal', 'error');
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="mt-5">
+    <div className="mt-5 w-full">
       <CustomButton variant="primary" onClick={() => setOpen(true)}>
         Agregar viaje
       </CustomButton>
       <CustomDialog open={open} onClose={onClose}>
-        <div className="flex flex-col items-center justify-center p-5">
+        <div className="flex flex-col items-center justify-center p-5 w-[100%] md:w-[450px]">
           <h1 className="text-lg font-semibold text-gray-700">
             Nuevo viaje semanal para {day}
           </h1>
 
           <div className="flex flex-col items-start justify-center w-full">
             <span className="text-gray-500">Origen</span>
-            <TextOrCeti
-              isCeti={isOriginCeti}
-              onCetiChange={onOriginCetiChange}
-              value={origin}
-              onChange={onOriginChange}
-            />
+            {isLoaded && (
+              <TextOrCeti
+                isCeti={isOriginCeti}
+                onCetiChange={onOriginCetiChange}
+                value={origin}
+                onChange={onOriginChange}
+              />
+            )}
 
             <span className="text-gray-500 mt-4">Destino</span>
-            <TextOrCeti
-              isCeti={isDestinationCeti}
-              onCetiChange={onDestinationCetiChange}
-              value={destination}
-              onChange={onDestinationChange}
-            />
-
+            {isLoaded && (
+              <TextOrCeti
+                isCeti={isDestinationCeti}
+                onCetiChange={onDestinationCetiChange}
+                value={destination}
+                onChange={onDestinationChange}
+              />
+            )}
             <span>Hora de salida</span>
             <CustomTimePicker setValue={onTimeChange} value={departureTime} />
 
@@ -99,6 +165,8 @@ const AddWeeklyTrip = ({ day }: Props) => {
             </div>
           </div>
         </div>
+
+        <CustomBackdrop open={saving} />
       </CustomDialog>
     </div>
   );

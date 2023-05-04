@@ -10,7 +10,13 @@ interface Props {
 
 const CustomBackdrop: React.FC<Props> = ({ open }) => {
   return (
-    <Backdrop open={open}>
+    <Backdrop
+      open={open}
+      className="z-1400"
+      style={{
+        zIndex: 1400,
+      }}
+    >
       <CircularProgress color="inherit" />
     </Backdrop>
   );

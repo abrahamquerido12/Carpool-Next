@@ -2,13 +2,37 @@
 import prisma from '@/lib/prisma';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
-import { options } from '../auth/[...nextauth]';
+import { options } from '../../auth/[...nextauth]';
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, options);
 
   if (!session) {
     res.status(401).json({ error: 'Not Authorized' });
+    return;
+  }
+
+  if (req.method === 'GET') {
+    const user = await prisma.user.findFirst({
+      where: {
+        email: session?.user?.email,
+      },
+      select: {
+        driver: {
+          include: {
+            weeklyTrips: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      console.log('user not found');
+      res.status(401).json({ error: 'Not Authorized' });
+    }
+
+    const weeklyTrips = user?.driver?.weeklyTrips;
+    res.status(200).json(weeklyTrips);
     return;
   }
 
@@ -61,7 +85,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      res.status(200).json(weeklyTrips);
+      res.status(201).json(weeklyTrips);
     } catch (e) {
       console.log(e);
       res.status(500).json({ error: e });

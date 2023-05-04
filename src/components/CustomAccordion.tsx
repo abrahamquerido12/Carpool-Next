@@ -19,7 +19,7 @@ const CustomAccordion = ({ title, children }: Props) => {
         aria-controls="panel1a-content"
         id="panel1a-header"
       >
-        {title}
+        <h1 className="text-xl font-semibold"> {title}</h1>
       </AccordionSummary>
       <AccordionDetails>{children}</AccordionDetails>
     </Accordion>

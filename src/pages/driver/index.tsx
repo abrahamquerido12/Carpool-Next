@@ -1,10 +1,10 @@
-import Skeleton from '@mui/material/Skeleton';
 import { GetServerSidePropsContext } from 'next';
 
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import MissingDataCard from '../../components/MissingDataCard';
+import WelcomeUser from '../../components/WelcomeUser';
 import DriverHeader from '../../components/driver/DriverHeader';
 import Trips from '../../components/driver/Home/Trips';
 import { UserContext } from '../../contexts/userCtx';
@@ -58,27 +58,11 @@ const DriverHome = (props: DriverHomeProps) => {
     <MainLayout>
       <div className="w-full md:w-1/2">
         <DriverHeader />
-        {loading ? (
-          <>
-            <Skeleton
-              variant="rectangular"
-              width="100%"
-              height={30}
-              className="rounded-lg mt-2"
-            />
-            <Skeleton
-              variant="rectangular"
-              width="100%"
-              height={30}
-              className="rounded-lg mt-2"
-            />
-          </>
-        ) : (
-          <h1 className="text-[2rem]  text-cxBlue font-semibold ">
-            Bienvenido, <br /> {firstName?.toUpperCase()}{' '}
-            {firstLastName?.toUpperCase()}
-          </h1>
-        )}
+        <WelcomeUser
+          loading={loading}
+          firstLastName={firstLastName as string}
+          firstName={firstName as string}
+        />
 
         <div className="flex items-center justify-center my-5 w-full">
           <div className="w-full h-0.5 bg-cxGray"></div>
