@@ -36,7 +36,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       // trips we'll be generated based on driver's weekly trips and query params
       let trips = await prisma.weeklyTrip.findMany({
         include: {
-          driver: true,
+          driver: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
 
@@ -59,7 +63,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       if (origin) {
         if (origin === 'CETI') {
-          trips = trips.filter((trip) => trip.origin === 'CETI');
+          trips = trips
+            .filter((trip) => trip.origin === 'CETI')
+            .map((trip) => ({ ...trip, distanceToOrigin: 0 }));
         } else {
           const [lat, long] = originCoordinates.split(',');
           const searchOrigin = {
@@ -68,23 +74,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           };
 
           // we'll search the closest trip to origin based on the latitude and longitude
-          trips = trips.map((trip) => {
-            const [tripLat, tripLng] = trip.originCoordinates.split(',');
-            const tripOrigin = {
-              latitude: parseFloat(tripLat),
-              longitude: parseFloat(tripLng),
-            };
+          trips = trips
+            .map((trip) => {
+              const [tripLat, tripLng] = trip.originCoordinates.split(',');
+              const tripOrigin = {
+                latitude: parseFloat(tripLat),
+                longitude: parseFloat(tripLng),
+              };
 
-            const distance = getDistance(searchOrigin, tripOrigin);
+              const distance = getDistance(searchOrigin, tripOrigin);
 
-            return { ...trip, distance };
-          });
+              return { ...trip, distanceToOrigin: distance };
+            })
+            .sort((a, b) => a.distanceToOrigin - b.distanceToOrigin);
         }
       }
 
       if (destination) {
         if (destination === 'CETI') {
-          trips = trips.filter((trip) => trip.destination === 'CETI');
+          trips = trips
+            .filter((trip) => trip.destination === 'CETI')
+            .map((trip) => ({ ...trip, distanceToDestination: 0 }));
         } else {
           const [lat, long] = destinationCoordinates.split(',');
           const searchDestination = {
@@ -93,24 +103,41 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           };
 
           // we'll search the closest trip to origin based on the latitude and longitude
-          trips = trips.filter((trip) => {
-            const [tripLat, tripLng] = trip.destinationCoordinates.split(',');
-            const tripDestination = {
-              latitude: parseFloat(tripLat),
-              longitude: parseFloat(tripLng),
-            };
+          trips = trips
+            .map((trip) => {
+              const [tripLat, tripLng] = trip.destinationCoordinates.split(',');
+              const tripDestination = {
+                latitude: parseFloat(tripLat),
+                longitude: parseFloat(tripLng),
+              };
 
-            const distance = getDistance(searchDestination, tripDestination);
-            console.log({
-              distance,
-            });
+              const distance = getDistance(searchDestination, tripDestination);
 
-            return { ...trip, distance };
-          });
+              return { ...trip, distanceToDestination: distance };
+            })
+            .sort((a, b) => a.distanceToDestination - b.distanceToDestination);
         }
       }
 
-      res.status(200).json({ trips });
+      // sort trips based on departure time, first on the array the ones that are
+      // closer to the departure time from the searched trip
+      const searchedDepartureTime = new Date(departureTime).getHours();
+
+      trips.sort((a, b) => {
+        const aDepartureTime = new Date(a.departureTime);
+        const bDepartureTime = new Date(b.departureTime);
+
+        const aTimeDiff = Math.abs(
+          aDepartureTime.getHours() - searchedDepartureTime
+        );
+        const bTimeDiff = Math.abs(
+          bDepartureTime.getHours() - searchedDepartureTime
+        );
+
+        return aTimeDiff - bTimeDiff;
+      });
+
+      res.status(200).json(trips);
       return;
 
       // if query params are present, we'll generate trips based on those params

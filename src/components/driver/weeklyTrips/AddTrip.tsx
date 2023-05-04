@@ -1,9 +1,9 @@
 import { place } from '@/../types/trips';
 import { CetiData } from '@/lib/helpers';
 import { useLoadScript } from '@react-google-maps/api';
-import axios from 'axios';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useContext } from 'react';
+import { addWeeklyTrip } from '../../../lib/api/driverReqs';
 import { UseToastContext } from '../../../pages/_app';
 import { WeeklyTripsContext } from '../../../pages/driver/weekly-trips';
 import CustomButton from '../../Button';
@@ -98,10 +98,8 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
       return;
     }
 
-    // check if origin and destination are the same
     if (origin.description === destination.description) {
       openToast('Origen y destino deben ser diferentes', 'error');
-
       setSaving(false);
       return;
     }
@@ -111,20 +109,17 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
       originCoordinates: `${origin.latitude},${origin.longitude}`,
       destination: destination.description,
       destinationCoordinates: `${destination.latitude}, ${destination.longitude}`,
-      departureTime: departureTime.toDate(),
+      departureTime: departureTime.toISOString(),
       dayOfWeek: dayVal,
     };
-
-    const response = await axios.post('/api/driver/weeklytrip', payload);
+    const response = await addWeeklyTrip(payload);
     if (response.status === 201) {
       openToast('Viaje semanal agregado', 'success');
-
       setSaving(false);
       onClose();
       refreshData();
     } else {
       openToast('Error al agregar viaje semanal', 'error');
-
       setSaving(false);
     }
   };
@@ -135,7 +130,7 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
         Agregar viaje
       </CustomButton>
       <CustomDialog open={open} onClose={onClose}>
-        <div className="flex flex-col items-center justify-center p-5">
+        <div className="flex flex-col items-center justify-center p-5 w-[100%] md:w-[450px]">
           <h1 className="text-lg font-semibold text-gray-700">
             Nuevo viaje semanal para {day}
           </h1>

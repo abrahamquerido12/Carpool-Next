@@ -9,8 +9,8 @@ import CustomButton from '../../components/Button';
 import CustomToast from '../../components/CustomToast';
 import FilteredSelect from '../../components/FilteredSelect';
 import GoBackHeader from '../../components/GoBackHeader';
-import { saveCarData } from '../../lib/driverReqs';
-import { CarDto } from '../../lib/driverReqs/driverTypes';
+import { saveCarData } from '../../lib/api/driverReqs';
+import { CarDto } from '../../lib/api/driverReqs/driverTypes';
 import prisma from '../../lib/prisma';
 
 const colors = [
@@ -44,13 +44,13 @@ const AddCarPage = (props: AddCarPageProps) => {
 
   const [carModels, setCarModels] = useState<string[]>([]);
 
-  const [carBrand, setCarBrand] = useState<string | null>(car?.brand || null);
-  const [carModel, setCarModel] = useState<string | null>(car?.model || null);
-  const [placa, setPlaca] = useState<string | null>(car?.plate || null);
+  const [carBrand, setCarBrand] = useState<string | null>(car?.brand || '');
+  const [carModel, setCarModel] = useState<string | null>(car?.model || '');
+  const [placa, setPlaca] = useState<string | null>(car?.plate || '');
 
-  const [color, setColor] = useState<string | null>(car?.color || null);
+  const [color, setColor] = useState<string | null>(car?.color || '');
 
-  const [seat, setSeats] = useState<string | null>(car?.seats || null);
+  const [seat, setSeats] = useState<string | null>(car?.seats || '');
 
   const handleCarBrandChange = (value: string) => {
     setCarBrand(value);

@@ -3,13 +3,13 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 import { place } from '../../../../types/trips';
-import CustomButton from '../../../components/Button';
 import CustomBackdrop from '../../../components/CustomBackdrop';
-import CustomDatePicker from '../../../components/CustomDatePicker';
-import CustomTimePicker from '../../../components/CustomTimePicker';
 import GoBackHeader from '../../../components/GoBackHeader';
-import TextOrCeti from '../../../components/TextOrCeti';
+import SearchTripForm from '../../../components/passenger/searchTrips/SearchTripForm';
+import TripsResults from '../../../components/passenger/searchTrips/TripsResults';
+import { SearchTripContext } from '../../../contexts/searchTripCtx';
 import MainLayout from '../../../layouts/MainLayout';
+import { searchTrips } from '../../../lib/api/passengerReqs';
 import { CetiData } from '../../../lib/helpers';
 import { UseToastContext } from '../../_app';
 
@@ -38,6 +38,14 @@ const SearchTripPage = () => {
 
   const [date, setDate] = useState(dayjs(new Date()));
   const [departureTime, setDepartureTime] = useState(dayjs(new Date()));
+
+  const [loading, setLoading] = useState(false);
+  const [trips, setTrips] = useState<any[]>([]);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const toggleDrawer = (newOpen: boolean) => () => {
+    setDrawerOpen(newOpen);
+  };
 
   const onOriginCetiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // if is checked assign ceti data to origin
@@ -69,6 +77,7 @@ const SearchTripPage = () => {
   };
 
   const handleClick = async () => {
+    setLoading(true);
     if (origin.description === 'CETI' && destination.description === 'CETI') {
       openToast('Favor de ingresar un viaje válido', 'error');
       return;
@@ -78,8 +87,9 @@ const SearchTripPage = () => {
       openToast('Solo viajes con destino o origen CETI', 'error');
       return;
     }
+    setDrawerOpen(true);
 
-    const data = {
+    const payload = {
       date: date.toISOString(),
       origin: origin.description,
       originCoordinates: `${origin.latitude},${origin.longitude}`,
@@ -88,15 +98,17 @@ const SearchTripPage = () => {
       departureTime: departureTime.toISOString(),
     };
 
-    // const response = await axios.post('/api/trips/search', data);
+    const { data } = await searchTrips(payload);
 
-    // send to /results that is children on current route
-    router.push({
-      pathname: '/passenger/search-trips/results',
-      query: {
-        ...data,
-      },
-    });
+    if (!data) {
+      openToast('No se encontraron viajes', 'error');
+      setLoading(false);
+
+      return;
+    }
+
+    setTrips(data);
+    setLoading(false);
   };
 
   if (!isLoaded) {
@@ -108,49 +120,47 @@ const SearchTripPage = () => {
   }
   return (
     <MainLayout>
-      <div className="w-full md:w-1/2">
-        <GoBackHeader onClick={() => router.push('/passenger')} />
-        <h1 className="text-[2rem]  text-cxBlue font-semibold ">
-          Buscar viaje
-        </h1>
-        <div className="flex-col flex mt-4">
-          <span>Origen</span>
-          <TextOrCeti
-            value={origin}
-            isCeti={isOriginCeti}
-            onChange={(value) => setOrigin(value)}
-            onCetiChange={onOriginCetiChange}
+      <SearchTripContext.Provider
+        value={{
+          date,
+          setDate,
+          origin,
+          setOrigin,
+          destination,
+          setDestination,
+          departureTime,
+          setDepartureTime,
+        }}
+      >
+        <div className="w-full md:w-1/2">
+          <GoBackHeader onClick={() => router.push('/passenger')} />
+          <h1 className="text-[2rem]  text-cxBlue font-semibold ">
+            Buscar viaje
+          </h1>
+          <SearchTripForm
+            date={date}
+            setDate={setDate}
+            origin={origin}
+            setOrigin={setOrigin}
+            isOriginCeti={isOriginCeti}
+            departureTime={departureTime}
+            destination={destination}
+            handleClick={handleClick}
+            isDestinationCeti={isDestinationCeti}
+            onDestinationCetiChange={onDestinationCetiChange}
+            onOriginCetiChange={onOriginCetiChange}
+            setDepartureTime={setDepartureTime}
+            setDestination={setDestination}
+          />
+
+          <TripsResults
+            trips={trips}
+            open={drawerOpen}
+            toggleDrawer={toggleDrawer}
+            loading={loading}
           />
         </div>
-        <div className="flex-col flex mt-4">
-          <span>Destino</span>
-          <TextOrCeti
-            value={destination}
-            isCeti={isDestinationCeti}
-            onChange={(value) => setDestination(value)}
-            onCetiChange={onDestinationCetiChange}
-          />
-        </div>
-
-        <div className="mt-4 flex flex-col">
-          <span>Fecha de salida</span>
-          <CustomDatePicker value={date} onChange={(val) => setDate(val)} />
-        </div>
-
-        <div className="mt-4 flex flex-col">
-          <span>Hora de salida</span>
-          <CustomTimePicker
-            value={departureTime}
-            setValue={(val) => setDepartureTime(val)}
-          />
-        </div>
-
-        <div className="mt-8">
-          <CustomButton variant="primary" onClick={handleClick}>
-            Buscar
-          </CustomButton>
-        </div>
-      </div>
+      </SearchTripContext.Provider>
     </MainLayout>
   );
 };

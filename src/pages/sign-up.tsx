@@ -1,16 +1,18 @@
 import signup from '@/../public/signup.svg';
 import { SignupContext } from '@/contexts/singupCtx';
-import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMemo, useRef, useState } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import CustomToast from '../components/CustomToast';
 import HorizontalNonLinearStepper from '../components/Stepper';
 import { StepOne, StepTwo } from '../components/singup';
 
 import { setTimeout } from 'timers';
 import CustomBackdrop from '../components/CustomBackdrop';
+import { createUser } from '../lib/api/general';
+import { validateSignupData } from '../lib/helpers';
+import { UseToastContext } from './_app';
 
 // log db url from .env
 console.log(process.env.NEXT_PUBLIC_DB_URL);
@@ -27,6 +29,7 @@ const signupSteps = [
 ];
 
 const SignUpPage = () => {
+  const { openToast } = useContext(UseToastContext);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
@@ -82,47 +85,35 @@ const SignUpPage = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (
-      !firstName ||
-      !firstLastName ||
-      !secondLastName ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      !phone
-    ) {
-      setMessage('Por favor llena todos los campos');
-      setSeverity('error');
-      setOpen(true);
-      return;
-    }
+    // if (
+    //   !firstName ||
+    //   !firstLastName ||
+    //   !secondLastName ||
+    //   !email ||
+    //   !password ||
+    //   !confirmPassword ||
+    //   !phone
+    // ) {
+    //   return openToast('Por favor llena todos los campos', 'error');
+    // }
 
-    if (password !== confirmPassword) {
-      setMessage('Las contraseñas no coinciden');
-      setSeverity('error');
-      setOpen(true);
-      return;
-    }
+    // if (password !== confirmPassword) {
+    //   return openToast('Las contraseñas no coinciden', 'error');
+    // }
 
-    if (phone.length !== 10) {
-      setMessage('El número de teléfono debe tener 10 dígitos');
-      setSeverity('error');
-      setOpen(true);
-      return;
-    }
+    // if (phone.length !== 10) {
+    //   return openToast('El número de teléfono debe ser de 10 dígitos', 'error');
+    // }
 
-    const emailRegex = new RegExp(
-      '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$'
-    );
+    // const emailRegex = new RegExp(
+    //   '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$'
+    // );
 
-    const emailDomain = email.split('@')[1];
+    // const emailDomain = email.split('@')[1];
 
-    if (!emailRegex.test(email) || emailDomain !== 'ceti.mx') {
-      setMessage('El correo electrónico no es válido');
-      setSeverity('error');
-      setOpen(true);
-      return;
-    }
+    // if (!emailRegex.test(email) || emailDomain !== 'ceti.mx') {
+    //   return openToast('El correo electrónico debe ser válido', 'error');
+    // }
 
     const data = {
       firstName,
@@ -130,10 +121,17 @@ const SignUpPage = () => {
       secondLastName,
       email,
       password,
+      confirmPassword,
       phoneNumber: phone,
     };
+
+    const { isValid, errorMsg } = validateSignupData(data);
+    if (!isValid) {
+      return openToast(errorMsg, 'error');
+    }
+
     setLoading(true);
-    const response = await axios.post('/api/user', data);
+    const response = await createUser(data);
     if (response.status === 201) {
       setTimeout(() => {
         // add email to url query params

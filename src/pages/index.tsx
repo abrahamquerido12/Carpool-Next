@@ -36,8 +36,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  console.log(session.user);
-
   if (!session.user.isUserTypeSelected) {
     return {
       redirect: {

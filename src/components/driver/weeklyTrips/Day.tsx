@@ -2,7 +2,7 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import dayjs from 'dayjs';
 import { useContext, useState } from 'react';
-import { deleteTrip } from '../../../lib/driverReqs';
+import { deleteTrip } from '../../../lib/api/driverReqs';
 import { englishToSpanishWeekdays } from '../../../lib/helpers';
 import { UseToastContext } from '../../../pages/_app';
 import { WeeklyTripsContext } from '../../../pages/driver/weekly-trips';
