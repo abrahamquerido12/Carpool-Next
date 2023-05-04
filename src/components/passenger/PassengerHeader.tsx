@@ -1,5 +1,6 @@
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import IconButton from '@mui/material/IconButton';
 import { signOut } from 'next-auth/react';
 
@@ -41,6 +42,10 @@ const PassengerHeader = () => {
           'aria-labelledby': 'basic-button',
         }}
       >
+        <MenuItem onClick={() => router.push('/passenger/search-trips')}>
+          <SearchOutlinedIcon fontSize="small" className="text-cxBlue mr-2" />
+          Buscar Viajes
+        </MenuItem>
         <MenuItem onClick={handleSignout}>
           <ExitToAppOutlinedIcon
             fontSize="small"

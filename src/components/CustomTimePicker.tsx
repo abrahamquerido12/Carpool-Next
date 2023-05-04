@@ -2,7 +2,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { MobileTimePicker } from '@mui/x-date-pickers/MobileTimePicker';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 
 interface Props {
   value: Dayjs;
@@ -14,7 +14,7 @@ const CustomTimePicker = ({ value, setValue }: Props) => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <MobileTimePicker
         className="w-full"
-        value={value || dayjs(new Date())}
+        value={value}
         onChange={(newValue) => setValue(newValue as Dayjs)}
       />
     </LocalizationProvider>

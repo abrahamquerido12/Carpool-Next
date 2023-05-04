@@ -14,3 +14,7 @@ body,
 .MuiAutocomplete-root {
   max-width: 100% !important;
 }
+
+main {
+  height: 100%;
+}

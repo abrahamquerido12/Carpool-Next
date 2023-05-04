@@ -1,21 +1,35 @@
+import driverImg from '@/../public/driver.svg';
+import passengerImg from '@/../public/passenger.svg';
 import axios from 'axios';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
-import MainLayout from '../layouts/MainLayout';
-
-import driverImg from '@/../public/driver.svg';
-import passengerImg from '@/../public/passenger.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { useContext, useState } from 'react';
+import CustomBackdrop from '../components/CustomBackdrop';
+import MainLayout from '../layouts/MainLayout';
+import { UseToastContext } from './_app';
 
 const UserType = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { openToast } = useContext(UseToastContext);
   const router = useRouter();
   const handleUserType = async (type: string) => {
+    setIsLoading(true);
     try {
       const response = await axios.post('/api/user/user-type', {
         isDriver: type === 'driver',
       });
-      console.log(response.data);
+
+      if (response.status !== 200) {
+        openToast(
+          'Ocurrrió un error al seleccionar el tipo de usuario. Favor de intentar mas tarde',
+          'error'
+        );
+        setIsLoading(false);
+      }
+
       router.push('/');
     } catch (err) {
       console.log(err);
@@ -56,6 +70,7 @@ const UserType = () => {
           </button>
         </div>
       </div>
+      <CustomBackdrop open={isLoading} />
     </MainLayout>
   );
 };
