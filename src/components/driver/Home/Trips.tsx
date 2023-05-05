@@ -1,6 +1,7 @@
 import requestImage from '@/../public/request.svg';
 import Image from 'next/image';
 import TripRequests from '../tripRequests/TripRequests';
+
 interface TripsProps {
   trips: any | null;
 }

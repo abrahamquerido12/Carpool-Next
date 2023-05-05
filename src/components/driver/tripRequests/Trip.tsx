@@ -1,35 +1,20 @@
-import { weekdays } from '@/lib/helpers';
+import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { useRouter } from 'next/router';
 
-const Trip = ({ trip }) => {
+const Trip = ({ trip }: { trip: any }) => {
   const router = useRouter();
 
   const onClick = () => {
     router.push(`/driver/trips/trip-requests/${trip.id}`);
   };
 
-  const weekday = `${
-    weekdays.find((day) => day.value === trip.dayOfWeek)?.label
-  } `;
+  const time = getFormattedDepartureTime(trip.departureTime);
+  const title = getDateTitle(trip.dayOfWeek, trip.departureTime);
 
-  const departureDate = new Date(trip.departureTime).toLocaleDateString(
-    'es-MX',
-    { day: 'numeric', month: 'long' }
-  );
-
-  const time = new Date(trip.departureTime).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-
-  const title = `${weekday} ${departureDate}`;
-
-  // de donde a donde
   return (
     <div
       onClick={onClick}
