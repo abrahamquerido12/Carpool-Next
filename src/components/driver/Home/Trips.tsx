@@ -1,11 +1,13 @@
 import requestImage from '@/../public/request.svg';
-import { Trip } from '@prisma/client';
 import Image from 'next/image';
+import TripRequests from '../tripRequests/TripRequests';
 interface TripsProps {
   trips: Trip[] | null;
 }
 
 const Trips = ({ trips }: TripsProps) => {
+  const navigateToTripDetail = () => {};
+
   if (!trips?.length)
     return (
       <div className="flex flex-col items-center justify-center w-full h-full">
@@ -19,9 +21,7 @@ const Trips = ({ trips }: TripsProps) => {
     );
 
   return (
-    <div>
-      <h1>Trips</h1>
-    </div>
+    <TripRequests trips={trips} onClick={navigateToTripDetail}></TripRequests>
   );
 };
 
