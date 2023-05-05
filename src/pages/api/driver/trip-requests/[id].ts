@@ -10,10 +10,10 @@ import { options } from '../../auth/[...nextauth]';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, options);
 
-  // if (!session) {
-  //   res.status(401).json({ error: 'Not Authorized' });
-  //   return;
-  // }
+  if (!session) {
+    res.status(401).json({ error: 'Not Authorized' });
+    return;
+  }
 
   // only post allowed
   if (req.method !== 'POST') {
