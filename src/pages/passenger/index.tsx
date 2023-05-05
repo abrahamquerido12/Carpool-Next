@@ -2,39 +2,31 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 import CustomButton from '../../components/Button';
 import WelcomeUser from '../../components/WelcomeUser';
 import PassengerHeader from '../../components/passenger/PassengerHeader';
 import Trips from '../../components/passenger/home/Trips';
-import { UserContext } from '../../contexts/userCtx';
 import MainLayout from '../../layouts/MainLayout';
 import prisma from '../../lib/prisma';
 
 interface PassengerHomeProps {
   user: any;
+  upcomingTrips: any;
+  tripRequests: any;
 }
 
 const PassengerHome = (props: PassengerHomeProps) => {
-  const {
-    user: { Passenger },
-  } = props;
-
-  const { TripRequest, trips } = Passenger || {};
-
-  const pendingTripRequests = TripRequest?.filter(
-    (req: any) => req.status === 'PENDING'
-  );
+  const { user, upcomingTrips, tripRequests } = props;
 
   const router = useRouter();
-  const { firstName, firstLastName, loading } = useContext(UserContext);
+  const { firstName, firstLastName } = user.profile;
 
   return (
     <MainLayout>
       <div className="w-full md:w-1/2 flex flex-col h-full">
         <PassengerHeader />
         <WelcomeUser
-          loading={loading}
+          loading={false}
           firstLastName={firstLastName as string}
           firstName={firstName as string}
         />
@@ -44,7 +36,10 @@ const PassengerHome = (props: PassengerHomeProps) => {
           <div className="w-full h-0.5 bg-cxGray"></div>
         </div>
 
-        <Trips trips={trips} pendingTripRequests={pendingTripRequests} />
+        <Trips
+          upcomingTrips={upcomingTrips}
+          pendingTripRequests={tripRequests}
+        />
 
         <div className="mt-auto mb-10">
           <CustomButton
@@ -87,6 +82,16 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
               trip: {
                 select: {
                   weeklyTrip: true,
+                  date: true,
+                },
+              },
+            },
+          },
+          trips: {
+            include: {
+              trip: {
+                include: {
+                  weeklyTrip: true,
                 },
               },
             },
@@ -98,10 +103,26 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     },
   });
 
+  const today = new Date();
+
+  // filter trips that are greater or equal to today
+  const upcomingTrips = user?.Passenger?.trips?.filter((trip) => {
+    const tripDate = new Date(trip.trip.date);
+    return tripDate >= today;
+  });
+
+  // show only trip request that are pending and in the future
+  const tripRequests = user?.Passenger?.TripRequest?.filter((req) => {
+    const tripDate = new Date(req.trip.date);
+    return req.status === 'PENDING' && tripDate >= today;
+  });
+
   return {
     props: {
       // pass driver as json to the client
       user: JSON.parse(JSON.stringify(user)) || null,
+      upcomingTrips: JSON.parse(JSON.stringify(upcomingTrips)) || null,
+      tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
     },
   };
 };

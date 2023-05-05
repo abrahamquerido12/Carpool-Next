@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AddWeeklyTripDto, CarDto } from './driverTypes';
+import { AddWeeklyTripDto, CarDto, UpdateTripRequestDto } from './driverTypes';
 
 export const getCarData = async () => {
   const { data } = await axios.get('/api/driver/car');
@@ -21,4 +21,11 @@ export const deleteTrip = async (id: number) => {
 
 export const addWeeklyTrip = async (payload: AddWeeklyTripDto) => {
   return axios.post('/api/driver/weeklytrip', payload);
+};
+
+export const updateTripRequest = async (
+  id: number,
+  payload: UpdateTripRequestDto
+) => {
+  return axios.put(`/api/driver/trip-requests/${id}`, payload);
 };

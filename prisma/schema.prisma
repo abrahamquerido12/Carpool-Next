@@ -89,6 +89,21 @@ enum DayOfWeek {
   SUNDAY
 }
 
+model PassengerTrip {
+  id Int @id @default(autoincrement())
+
+  passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  passengerId Int  @unique
+
+  trip   Trip @relation(fields: [tripId], references: [id])
+  tripId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+}
+
 model Passenger {
   id Int @id @default(autoincrement())
 
@@ -97,10 +112,9 @@ model Passenger {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  
-  Trip        Trip?         @relation(fields: [tripId], references: [id])
-  tripId      Int?
 
+  trips       PassengerTrip[]
+  
   TripRequest TripRequest[]
 }
 
@@ -127,7 +141,12 @@ model Trip {
   driverId Int
 
   // up to no. of seats in car passenger can be added
-  passengers Passenger[]
+  // passengers Passenger[]
+
+  passengers PassengerTrip[]
+
+
+
 
   date        DateTime
   isRecurrent Boolean
@@ -136,6 +155,8 @@ model Trip {
   updatedAt DateTime @updatedAt
 
   TripRequest TripRequest[]
+
+  
 
   // Clave foránea que hace referencia a WeeklyTrip
   weeklyTrip   WeeklyTrip @relation(fields: [weeklyTripId], references: [id])
@@ -180,4 +201,5 @@ enum TripRequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+  EXPIRED
 }

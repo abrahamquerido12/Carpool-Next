@@ -4,8 +4,11 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 import dayjs from 'dayjs';
-import { getDateTitle, getFormattedDepartureTime } from '../../../lib/helpers';
-import TripStatusBadge from '../../TripStatusBadge';
+import {
+  getDateTitle,
+  getFormattedDepartureTime,
+} from '../../../../lib/helpers';
+import TripStatusBadge from '../../../TripStatusBadge';
 
 interface Props {
   trip: any;
@@ -41,7 +44,7 @@ const TripRequest = ({ trip, onClick }: Props) => {
       : `${Math.round(walkingTime / 60)} min`;
 
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
-  const title = getDateTitle(weeklyTrip.dayOfWeek, weeklyTrip.departureTime);
+  const title = getDateTitle(weeklyTrip.dayOfWeek, trip.searchedDateTime);
 
   return (
     <div className="flex items-center  w-full rounded-lg bg-white p-2 shadow-md hover:shadow-lg transition-all border-2 border-gray-100 my-2 select-none  hover:cursor-pointer">

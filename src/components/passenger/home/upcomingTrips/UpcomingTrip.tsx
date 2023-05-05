@@ -1,22 +1,31 @@
-import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
+import {
+  getDateTitle,
+  getDaysUntilTrip,
+  getFormattedDepartureTime,
+} from '@/lib/helpers';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import { useRouter } from 'next/router';
 
-const Trip = ({ tripRequest }: { tripRequest: any }) => {
+interface Props {
+  trip: any;
+}
+
+const UpcomingTrip = ({ trip }: Props) => {
   const {
     trip: { weeklyTrip },
-  } = tripRequest || {};
+  } = trip || {};
   const router = useRouter();
 
   const onClick = () => {
-    router.push(`/driver/trips/trip-requests/${tripRequest.id}`);
+    router.push(`/passenger/trips/${trip.id}`);
   };
 
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
-  const title = getDateTitle(weeklyTrip?.dayOfWeek, tripRequest?.trip?.date);
+  const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.trip?.date);
+  const daysUntilTrip = getDaysUntilTrip(trip?.trip?.date);
 
   const origin = weeklyTrip?.origin;
   const destination = weeklyTrip?.destination;
@@ -37,12 +46,16 @@ const Trip = ({ tripRequest }: { tripRequest: any }) => {
             {destination}
           </p>
         </div>
+        <span className="pl-2 itlaic w-full text-left text-red-400">
+          En {daysUntilTrip} {daysUntilTrip > 1 ? 'días' : 'día'}
+        </span>
         <div className="flex items-center justify-start w-full ">
           <p className="overflow-hidden whitespace-nowrap max-w-[10rem]  opacity-80">
             <CalendarMonthIcon className="mr-1  text-[1.2rem]" />
-            {title}
+            {title}{' '}
           </p>
         </div>
+
         <div className="flex items-center justify-between w-full ">
           <p className="whitespace-nowrap opacity-80">
             <AccessTimeIcon className="mr-1 text-[1.2rem]" />
@@ -64,4 +77,4 @@ const Trip = ({ tripRequest }: { tripRequest: any }) => {
   );
 };
 
-export default Trip;
+export default UpcomingTrip;

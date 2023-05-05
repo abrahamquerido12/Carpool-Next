@@ -4,17 +4,10 @@ import TripRequests from '../tripRequests/TripRequests';
 
 interface TripsProps {
   trips: any | null;
+  tripRequests: any | null;
 }
 
-const Trips = ({ trips }: TripsProps) => {
-  const tripRequests = trips?.map((trip: any) => ({
-    ...trip,
-    origin: trip.weeklyTrip.origin,
-    destination: trip.weeklyTrip.destination,
-    dayOfWeek: trip.weeklyTrip.dayOfWeek,
-    departureTime: trip.weeklyTrip.departureTime,
-  }));
-
+const Trips = ({ trips, tripRequests }: TripsProps) => {
   if (!trips?.length)
     return (
       <div className="flex flex-col items-center justify-center w-full h-full">
@@ -27,7 +20,7 @@ const Trips = ({ trips }: TripsProps) => {
       </div>
     );
 
-  return <TripRequests trips={tripRequests}></TripRequests>;
+  return <TripRequests tripRequests={tripRequests}></TripRequests>;
 };
 
 export default Trips;

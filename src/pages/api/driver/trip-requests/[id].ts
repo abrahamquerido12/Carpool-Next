@@ -16,7 +16,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // only post allowed
-  if (req.method !== 'POST') {
+  if (req.method !== 'PUT') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
   } else {
@@ -63,17 +63,34 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return;
     }
 
+    if (acceptTrip && trip?.trip) {
+      await prisma.passengerTrip.upsert({
+        where: {
+          passengerId: passenger.id,
+        },
+        update: {
+          tripId: trip.trip.id,
+        },
+        create: {
+          tripId: trip.trip.id,
+          passengerId: passenger.id,
+        },
+      });
+    }
+
     const phone = passenger.user?.profile?.phoneNumber;
     if (!phone) return res.status(400).json({ error: 'Missing phone number' });
 
     const date = dayjs(trip.searchedDateTime).format('DD/MM/YYYY');
     const time = dayjs(trip?.trip?.weeklyTrip?.departureTime).format('HH:mm');
 
-    const message = `Tu viaje para el día ${date} a las ${time} ha sido ${
+    const message = `Tu solicitud de viaje para el día ${date} a las ${time} ha sido ${
       acceptTrip ? 'aceptado' : 'rechazado'
     }.\n`;
 
-    await sendSms(`+52${phone}`, message);
+    if (process.env.NODE_ENV !== 'development') {
+      await sendSms(`+52${phone}`, message);
+    }
 
     res.status(200).json(trip);
     return;
