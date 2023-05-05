@@ -1,7 +1,9 @@
 // protected route
 import prisma from '@/lib/prisma';
+import dayjs from 'dayjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
+import { sendSms } from '../../../../lib/twilio';
 import { options } from '../../auth/[...nextauth]';
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -64,6 +66,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         where: {
           weeklyTripId,
         },
+        include: {
+          weeklyTrip: true,
+        },
       });
 
       if (!trip) {
@@ -74,6 +79,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
             status: 'PENDING',
             weeklyTripId: weeklyT?.id as number,
             driverId: weeklyT?.driver?.id as number,
+          },
+          include: {
+            weeklyTrip: true,
           },
         });
       }
@@ -102,6 +110,32 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           searchedOriginCoordinates,
         },
       });
+
+      const driver = await prisma.driver.findFirst({
+        where: {
+          id: trip.driverId,
+        },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      });
+
+      const driverPhone = driver?.user?.profile?.phoneNumber;
+
+      const rquestDate = dayjs(tripRequest.searchedDateTime).format(
+        'DD/MM/YYYY'
+      );
+      const weeklyTripTime = dayjs(trip.weeklyTrip.departureTime).format(
+        'HH:mm'
+      );
+
+      const message = `Tienes una nueva solicitud de viaje para el día ${rquestDate}, en tu viaje de las ${weeklyTripTime}.\n\n`;
+
+      await sendSms(`+52${driverPhone}`, message);
 
       res.status(200).json(tripRequest);
       return;
