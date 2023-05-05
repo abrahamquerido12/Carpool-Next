@@ -1,11 +1,11 @@
 import Trip from './Trip';
 
-const TripRequests = ({ trips, onClick }) => {
+const TripRequests = ({ trips }: { trips: any }) => {
   return (
     <div>
       <span>Solicitudes de viaje</span>
-      {trips.map((trip) => (
-        <Trip trip={trip} onClick={onClick} key={trip.id}></Trip>
+      {trips.map((trip: any) => (
+        <Trip trip={trip} key={trip.id}></Trip>
       ))}
     </div>
   );

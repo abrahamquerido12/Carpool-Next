@@ -36,9 +36,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const { body } = req;
 
+      // check if email already exists
+      let user = await prisma.user.findUnique({
+        where: {
+          email: body.email,
+        },
+      });
+
+      if (user) return res.status(400).json({ error: 'Email already exists' });
+
       const hash = await argon.hash(body.password);
 
-      const user = await prisma.user.create({
+      user = await prisma.user.create({
         data: {
           email: body.email,
           password: hash,

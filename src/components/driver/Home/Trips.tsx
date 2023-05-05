@@ -2,11 +2,17 @@ import requestImage from '@/../public/request.svg';
 import Image from 'next/image';
 import TripRequests from '../tripRequests/TripRequests';
 interface TripsProps {
-  trips: Trip[] | null;
+  trips: any | null;
 }
 
 const Trips = ({ trips }: TripsProps) => {
-  const navigateToTripDetail = () => {};
+  const tripRequests = trips?.map((trip: any) => ({
+    ...trip,
+    origin: trip.weeklyTrip.origin,
+    destination: trip.weeklyTrip.destination,
+    dayOfWeek: trip.weeklyTrip.dayOfWeek,
+    departureTime: trip.weeklyTrip.departureTime,
+  }));
 
   if (!trips?.length)
     return (
@@ -20,9 +26,7 @@ const Trips = ({ trips }: TripsProps) => {
       </div>
     );
 
-  return (
-    <TripRequests trips={trips} onClick={navigateToTripDetail}></TripRequests>
-  );
+  return <TripRequests trips={tripRequests}></TripRequests>;
 };
 
 export default Trips;

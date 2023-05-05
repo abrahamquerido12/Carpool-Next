@@ -98,6 +98,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
         include: {
           car: true,
           weeklyTrips: true,
+
           trips: {
             include: {
               TripRequest: true,
