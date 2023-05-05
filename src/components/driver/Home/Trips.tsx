@@ -1,11 +1,20 @@
 import requestImage from '@/../public/request.svg';
-import { Trip } from '@prisma/client';
 import Image from 'next/image';
+import TripRequests from '../tripRequests/TripRequests';
+
 interface TripsProps {
-  trips: Trip[] | null;
+  trips: any | null;
 }
 
 const Trips = ({ trips }: TripsProps) => {
+  const tripRequests = trips?.map((trip: any) => ({
+    ...trip,
+    origin: trip.weeklyTrip.origin,
+    destination: trip.weeklyTrip.destination,
+    dayOfWeek: trip.weeklyTrip.dayOfWeek,
+    departureTime: trip.weeklyTrip.departureTime,
+  }));
+
   if (!trips?.length)
     return (
       <div className="flex flex-col items-center justify-center w-full h-full">
@@ -18,11 +27,7 @@ const Trips = ({ trips }: TripsProps) => {
       </div>
     );
 
-  return (
-    <div>
-      <h1>Trips</h1>
-    </div>
-  );
+  return <TripRequests trips={tripRequests}></TripRequests>;
 };
 
 export default Trips;

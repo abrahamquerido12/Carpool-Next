@@ -132,3 +132,22 @@ export const validateSignupData = (data: DataI) => {
     errorMsg,
   };
 };
+
+export const getDateTitle = (dayOfWeek: string, departureTime: string) => {
+  const weekday = `${weekdays.find((day) => day.value === dayOfWeek)?.label} `;
+
+  const departureDate = new Date(departureTime).toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return `${weekday} ${departureDate}`;
+};
+
+export const getFormattedDepartureTime = (departureTime: string) => {
+  return new Date(departureTime).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
