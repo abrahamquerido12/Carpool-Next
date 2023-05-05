@@ -2,25 +2,25 @@ import { GetServerSidePropsContext } from 'next';
 
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 import MissingDataCard from '../../components/MissingDataCard';
 import WelcomeUser from '../../components/WelcomeUser';
 import DriverHeader from '../../components/driver/DriverHeader';
 import Trips from '../../components/driver/Home/Trips';
-import { UserContext } from '../../contexts/userCtx';
 import MainLayout from '../../layouts/MainLayout';
 import prisma from '../../lib/prisma';
 
 interface DriverHomeProps {
   driver: any;
+  user: any;
+  tripRequests: any;
 }
 
 const DriverHome = (props: DriverHomeProps) => {
-  const { driver } = props;
+  const { driver, user, tripRequests } = props;
+  const { firstName, firstLastName, loading } = user?.profile || {};
   const { car, weeklyTrips, trips } = driver || {};
   const router = useRouter();
 
-  const { firstName, firstLastName, loading } = useContext(UserContext);
   console.log(loading);
 
   const addCar = () => {
@@ -50,7 +50,7 @@ const DriverHome = (props: DriverHomeProps) => {
         />
       );
     } else {
-      return <Trips trips={trips} />;
+      return <Trips trips={trips} tripRequests={tripRequests} />;
     }
   };
 
@@ -94,6 +94,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       email: session.user.email,
     },
     include: {
+      profile: {
+        select: {
+          firstLastName: true,
+          firstName: true,
+          secondLastName: true,
+        },
+      },
       driver: {
         include: {
           car: true,
@@ -110,10 +117,28 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     },
   });
 
+  const tripRequests = await prisma.tripRequest.findMany({
+    where: {
+      trip: {
+        driverId: user?.driver?.id,
+      },
+      status: 'PENDING',
+    },
+    include: {
+      trip: {
+        include: {
+          weeklyTrip: true,
+        },
+      },
+    },
+  });
+
   return {
     props: {
       // pass driver as json to the client
+      user: JSON.parse(JSON.stringify(user)),
       driver: JSON.parse(JSON.stringify(user?.driver)) || null,
+      tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
     },
   };
 };

@@ -14,3 +14,7 @@ export interface AddWeeklyTripDto {
   departureTime: string;
   dayOfWeek: string;
 }
+
+export interface UpdateTripRequestDto {
+  acceptTrip: boolean;
+}

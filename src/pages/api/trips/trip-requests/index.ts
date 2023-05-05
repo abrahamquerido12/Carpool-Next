@@ -135,7 +135,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       const message = `Tienes una nueva solicitud de viaje para el día ${rquestDate}, en tu viaje de las ${weeklyTripTime}.\n\n`;
 
-      await sendSms(`+52${driverPhone}`, message);
+      if (process.env.NODE_ENV !== 'development') {
+        await sendSms(`+52${driverPhone}`, message);
+      }
 
       res.status(200).json(tripRequest);
       return;

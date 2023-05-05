@@ -1,11 +1,22 @@
+import Link from 'next/link';
 import Trip from './Trip';
 
-const TripRequests = ({ trips }: { trips: any }) => {
+const TripRequests = ({ tripRequests }: { tripRequests: any }) => {
   return (
-    <div>
-      <span>Solicitudes de viaje</span>
-      {trips.map((trip: any) => (
-        <Trip trip={trip} key={trip.id}></Trip>
+    <div className="w-full ">
+      <div className="w-full flex justify-between">
+        <h2 className="w-full text-start font-semibold opacity-60">
+          Solicitudes de viaje pendientes
+        </h2>
+
+        <Link href={'/driver/trips/trip-requests'}>
+          <span className="text-blue-600 text-sm cursor-pointer whitespace-nowrap">
+            Ver todos
+          </span>
+        </Link>
+      </div>
+      {tripRequests.map((tripRequest: any) => (
+        <Trip tripRequest={tripRequest} key={tripRequest.id}></Trip>
       ))}
     </div>
   );

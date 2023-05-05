@@ -133,10 +133,10 @@ export const validateSignupData = (data: DataI) => {
   };
 };
 
-export const getDateTitle = (dayOfWeek: string, departureTime: string) => {
+export const getDateTitle = (dayOfWeek: string, searchedDay: string) => {
   const weekday = `${weekdays.find((day) => day.value === dayOfWeek)?.label} `;
 
-  const departureDate = new Date(departureTime).toLocaleDateString('es-MX', {
+  const departureDate = new Date(searchedDay).toLocaleDateString('es-MX', {
     day: 'numeric',
     month: 'long',
   });
@@ -150,4 +150,15 @@ export const getFormattedDepartureTime = (departureTime: string) => {
     minute: '2-digit',
     hour12: true,
   });
+};
+
+export const getDaysUntilTrip = (tripDate: string) => {
+  const date = new Date(tripDate);
+  const today = new Date();
+
+  const diff = date.getTime() - today.getTime();
+
+  const days = Math.ceil(diff / (1000 * 3600 * 24));
+
+  return days;
 };

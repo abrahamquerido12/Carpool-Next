@@ -29,7 +29,6 @@ const LoginPage = () => {
       email,
       password,
     });
-    setLoading(false);
   };
 
   return (
