@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import * as argon from 'argon2';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
+import { sendEmail } from '../../../lib/email';
 import { options } from '../auth/[...nextauth]';
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -67,6 +68,20 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           },
         },
       });
+
+      const today = new Date();
+      const token = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiresIn = new Date(today.getTime() + 60 * 60 * 1000);
+
+      await prisma.verificationToken.create({
+        data: {
+          token: token,
+          expiresAt: expiresIn,
+          userId: user.id,
+        },
+      });
+
+      await sendEmail(user.email, token);
 
       res.status(201).json({ ...user, profile });
     } catch (e) {

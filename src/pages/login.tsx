@@ -4,17 +4,20 @@ import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import CustomButton from '../components/Button';
 import CustomBackdrop from '../components/CustomBackdrop';
 import CustomToast from '../components/CustomToast';
+import { UseToastContext } from './_app';
 
 const LoginPage = () => {
+  const { openToast } = useContext(UseToastContext);
   const router = useRouter();
 
   //get message from query
   const error = router.query.error?.toString();
   const emailFromQuery = router.query.email?.toString();
+  const verified = router.query.verified?.toString();
   //   const { user, login } = useAuth();
   const [email, setEmail] = useState(emailFromQuery || '');
   const [password, setPassword] = useState('');
@@ -30,6 +33,12 @@ const LoginPage = () => {
       password,
     });
   };
+
+  useEffect(() => {
+    if (verified) {
+      openToast('Correo verificado correctamente', 'success');
+    }
+  }, [verified]);
 
   return (
     <div className="w-full flex items-center justify-center h-full flex-col md:flex-row">

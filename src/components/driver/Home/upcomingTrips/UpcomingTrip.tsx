@@ -7,6 +7,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import { useRouter } from 'next/router';
 
 interface Props {
@@ -28,6 +29,8 @@ const UpcomingTrip = ({ trip }: Props) => {
   const origin = weeklyTrip?.origin;
   const destination = weeklyTrip?.destination;
 
+  const numberOfPassengers = trip.passengers.length;
+
   return (
     <div
       onClick={onClick}
@@ -43,6 +46,11 @@ const UpcomingTrip = ({ trip }: Props) => {
           <p className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[10rem] opacity-80">
             {destination}
           </p>
+
+          <div className="ml-auto flex items-center justify-start">
+            <PersonOutlineOutlinedIcon className="mr-1" />{' '}
+            <span className="font-semibold">{numberOfPassengers}</span>
+          </div>
         </div>
         <span className="pl-2 itlaic w-full text-left text-red-400">
           En {daysUntilTrip} {daysUntilTrip > 1 ? 'días' : 'día'}

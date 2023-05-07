@@ -5,10 +5,8 @@ interface Props {
 }
 
 const UpcomingTrips = ({ upcomingTrips }: Props) => {
-  console.log(upcomingTrips.length);
-
   return (
-    <div className="w-full flex-col">
+    <div className="w-full flex-col items-start flex my-2">
       <h2 className="w-full text-start font-semibold opacity-60">
         Próximos viajes
       </h2>
@@ -18,7 +16,9 @@ const UpcomingTrips = ({ upcomingTrips }: Props) => {
           <UpcomingTrip key={trip.id} trip={trip} />
         ))
       ) : (
-        <span>No hay futuros viajes</span>
+        <span className="text-md opacity-50 text-start">
+          No hay futuros viajes
+        </span>
       )}
     </div>
   );
