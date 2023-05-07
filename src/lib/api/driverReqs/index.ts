@@ -29,3 +29,7 @@ export const updateTripRequest = async (
 ) => {
   return axios.put(`/api/driver/trip-requests/${id}`, payload);
 };
+
+export const cancelTrip = async (id: number) => {
+  return axios.put(`/api/trips/${id}`);
+};
