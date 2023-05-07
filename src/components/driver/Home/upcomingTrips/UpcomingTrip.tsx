@@ -65,8 +65,7 @@ const UpcomingTrip = ({ trip }: Props) => {
         <div className="flex items-center justify-between w-full ">
           <p className="whitespace-nowrap opacity-80">
             <AccessTimeIcon className="mr-1 text-[1.2rem]" />
-            {/*             {time}
-             */}{' '}
+            {time}
           </p>
 
           <div className="w-full flex justify-end">

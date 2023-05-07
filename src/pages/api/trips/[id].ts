@@ -17,8 +17,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === 'PUT') {
     try {
-      //si existe, update status to cancelled
-      //notificar a todos los pasajeros con el sendSms. Promise.all
       const { id } = req.query;
       if (!id) return res.status(404).json({ error: 'Invalid id' });
 
@@ -48,7 +46,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       });
       if (!trip) return res.status(404).json({ error: 'Trip not found' });
 
-      //update status
       await prisma.trip.update({
         where: {
           id: +id,
