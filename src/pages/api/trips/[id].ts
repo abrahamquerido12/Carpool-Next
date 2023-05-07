@@ -1,5 +1,6 @@
 // protected route
 import prisma from '@/lib/prisma';
+import dayjs from 'dayjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { sendSms } from '../../../lib/twilio';
@@ -57,8 +58,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      const date = "dayjs(trip.).format('DD/MM/YYYY');";
-      const time = '';
+      const date = dayjs(trip.date).format('DD/MM/YYYY');
+      const time = dayjs(trip.date).format('HH:mm');
       const message = `Tu viaje para el día ${date} a las ${time} ha sido cancelado.\n`;
 
       //notify status

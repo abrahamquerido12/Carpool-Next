@@ -9,6 +9,7 @@ import TripOriginIcon from '@mui/icons-material/TripOrigin';
 
 import CustomButton from '@/components/Button';
 import AlertDialog from '@/components/CustomAlertDialog';
+import CustomBackdrop from '@/components/CustomBackdrop';
 import { cancelTrip } from '@/lib/api/driverReqs';
 import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
 import prisma from '@/lib/prisma';
@@ -26,9 +27,7 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
-  const [alertAction, setAlertAction] = useState<'aceptar' | 'rechazar'>(
-    'aceptar'
-  );
+
   const title = getDateTitle(weeklyTrip.dayOfWeek, weeklyTrip.departureTime);
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
 
@@ -57,7 +56,6 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
   const handleCancelTripBtnClick = async () => {
     setAlertTitle('Confirmación');
     setAlertMessage('¿Estás seguro de cancelar el viaje?');
-    setAlertAction('aceptar');
     setOpenAlert(true);
   };
 
@@ -116,7 +114,7 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
 
           <div className="mt-10">
             <div className="w-full my-3">
-              <CustomButton onClick={handleCancelTripBtnClick}>
+              <CustomButton onClick={handleCancelTripBtnClick} variant="error">
                 Cancelar viaje
               </CustomButton>
             </div>
@@ -132,6 +130,7 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
           />
         </div>
       </div>
+      <CustomBackdrop open={isLoading} />
     </MainLayout>
   );
 };

@@ -151,7 +151,7 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
 
   const upcomingTrips = trips.filter((trip) => {
     const tripDate = new Date(trip.date);
-    return tripDate >= today;
+    return tripDate >= today && trip.passengers.length > 0;
   });
 
   return {
