@@ -3,12 +3,8 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
-import dayjs from 'dayjs';
-import {
-  getDateTitle,
-  getFormattedDepartureTime,
-} from '../../../../lib/helpers';
-import TripStatusBadge from '../../../TripStatusBadge';
+import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
+import TripStatusBadge from '@/TripStatusBadge';
 
 interface Props {
   trip: any;
@@ -16,32 +12,8 @@ interface Props {
   onClick: (trip: any) => void;
 }
 
-const TripRequest = ({ trip, onClick }: Props) => {
-  const departureTime = dayjs(trip.departureTime).format('HH:mm');
+const TripRequest = ({ trip }: Props) => {
   const weeklyTrip = trip?.trip?.weeklyTrip;
-
-  const distance = () => {
-    if (trip.origin === 'CETI') {
-      return trip.distanceToDestination > 1000
-        ? `${trip.distanceToDestination / 1000} km`
-        : `${trip.distanceToDestination} m`;
-    } else {
-      return trip.distanceToOrigin > 1000
-        ? `${trip.distanceToOrigin / 1000} km`
-        : `${trip.distanceToOrigin} m`;
-    }
-  };
-
-  const walkingTime =
-    trip.origin === 'CETI'
-      ? Math.round(trip.distanceToDestination / 1.39)
-      : Math.round(trip.distanceToOrigin / 1.39);
-
-  const walkingTimeFormatted =
-    walkingTime > 3600
-      ? `${Math.floor(walkingTime / 60)}
-      hrs y ${walkingTime % 60} min`
-      : `${Math.round(walkingTime / 60)} min`;
 
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
   const title = getDateTitle(weeklyTrip.dayOfWeek, trip.searchedDateTime);

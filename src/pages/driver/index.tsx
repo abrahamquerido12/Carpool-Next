@@ -13,15 +13,14 @@ interface DriverHomeProps {
   driver: any;
   user: any;
   tripRequests: any;
+  upcomingTrips: any;
 }
 
 const DriverHome = (props: DriverHomeProps) => {
-  const { driver, user, tripRequests } = props;
+  const { driver, user, tripRequests, upcomingTrips } = props;
   const { firstName, firstLastName, loading } = user?.profile || {};
-  const { car, weeklyTrips, trips } = driver || {};
+  const { car, weeklyTrips } = driver || {};
   const router = useRouter();
-
-  console.log(loading);
 
   const addCar = () => {
     router.push('/driver/add-car');
@@ -50,7 +49,9 @@ const DriverHome = (props: DriverHomeProps) => {
         />
       );
     } else {
-      return <Trips trips={trips} tripRequests={tripRequests} />;
+      return (
+        <Trips upcomingTrips={upcomingTrips} tripRequests={tripRequests} />
+      );
     }
   };
 
@@ -133,12 +134,33 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     },
   });
 
+  const today = new Date();
+
+  const trips = await prisma.trip.findMany({
+    where: {
+      driverId: user?.driver?.id,
+      status: 'PENDING',
+    },
+    include: {
+      TripRequest: true,
+      weeklyTrip: true,
+      driver: true,
+      passengers: true,
+    },
+  });
+
+  const upcomingTrips = trips.filter((trip) => {
+    const tripDate = new Date(trip.date);
+    return tripDate >= today;
+  });
+
   return {
     props: {
       // pass driver as json to the client
       user: JSON.parse(JSON.stringify(user)),
       driver: JSON.parse(JSON.stringify(user?.driver)) || null,
       tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
+      upcomingTrips: JSON.parse(JSON.stringify(upcomingTrips)) || null,
     },
   };
 };

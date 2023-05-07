@@ -158,7 +158,7 @@ export const getDaysUntilTrip = (tripDate: string) => {
 
   const diff = date.getTime() - today.getTime();
 
-  const days = Math.ceil(diff / (1000 * 3600 * 24));
+  const days = Math.floor(diff / (1000 * 3600 * 24));
 
   return days;
 };
