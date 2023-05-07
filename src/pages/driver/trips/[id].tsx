@@ -11,7 +11,11 @@ import CustomButton from '@/components/Button';
 import AlertDialog from '@/components/CustomAlertDialog';
 import CustomBackdrop from '@/components/CustomBackdrop';
 import { cancelTrip } from '@/lib/api/driverReqs';
-import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
+import {
+  getDateTitle,
+  getFormattedDepartureTime,
+  getWhatsappLink,
+} from '@/lib/helpers';
 import prisma from '@/lib/prisma';
 import { UseToastContext } from '@/pages/_app';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -31,6 +35,8 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
   const title = getDateTitle(weeklyTrip.dayOfWeek, weeklyTrip.departureTime);
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
 
+  const whatsAppMessage = 'Hola, soy tu conductor de SchoolPool.';
+
   const renderPassengers = () => {
     if (passengers.length == 0) {
       return <div>No hay pasajeros que mostrar</div>;
@@ -46,7 +52,13 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
           <p className="overflow-hidden   font-medium flex items-center ">
             {firstName + ' ' + firstLastName}
             <PhoneIphoneOutlinedIcon className="inline-block text-[md] ml-2 text-cxBlue" />{' '}
-            {phoneNumber}
+            <a
+              className="underline decoration-cxBlue"
+              href={getWhatsappLink(phoneNumber, whatsAppMessage)}
+              target="_blank"
+            >
+              {phoneNumber}
+            </a>
           </p>
         </div>
       );
