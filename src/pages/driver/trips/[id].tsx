@@ -7,19 +7,40 @@ import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined
 import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
 import TripOriginIcon from '@mui/icons-material/TripOrigin';
 
-import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
+import CustomButton from '@/components/Button';
+import AlertDialog from '@/components/CustomAlertDialog';
+import CustomBackdrop from '@/components/CustomBackdrop';
+import { cancelTrip } from '@/lib/api/driverReqs';
+import {
+  getDateTitle,
+  getFormattedDepartureTime,
+  getWhatsappLink,
+} from '@/lib/helpers';
 import prisma from '@/lib/prisma';
+import { UseToastContext } from '@/pages/_app';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { GetServerSidePropsContext } from 'next';
+import { useContext, useState } from 'react';
 
 const TripDetailsPage = ({ trip }: { trip: any }) => {
   const { weeklyTrip, passengers } = trip;
+  const { openToast } = useContext(UseToastContext);
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertTitle, setAlertTitle] = useState('');
+  const [alertMessage, setAlertMessage] = useState('');
 
   const title = getDateTitle(weeklyTrip.dayOfWeek, weeklyTrip.departureTime);
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
 
+  const whatsAppMessage = 'Hola, soy tu conductor de SchoolPool.';
+
   const renderPassengers = () => {
+    if (passengers.length == 0) {
+      return <div>No hay pasajeros que mostrar</div>;
+    }
     return passengers.map((passenger: any) => {
       const { firstName, firstLastName, phoneNumber } = passenger.profile;
       return (
@@ -31,11 +52,42 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
           <p className="overflow-hidden   font-medium flex items-center ">
             {firstName + ' ' + firstLastName}
             <PhoneIphoneOutlinedIcon className="inline-block text-[md] ml-2 text-cxBlue" />{' '}
-            {phoneNumber}
+            <a
+              className="underline decoration-cxBlue"
+              href={getWhatsappLink(phoneNumber, whatsAppMessage)}
+              target="_blank"
+            >
+              {phoneNumber}
+            </a>
           </p>
         </div>
       );
     });
+  };
+
+  const handleCancelTripBtnClick = async () => {
+    setAlertTitle('Confirmación');
+    setAlertMessage('¿Estás seguro de cancelar el viaje?');
+    setOpenAlert(true);
+  };
+
+  const handleAction = async () => {
+    setIsLoading(true);
+    const response = await cancelTrip(trip.id);
+
+    if (response.status !== 200) {
+      openToast(
+        'Ocurrió un error al cancelar el viaje. Favor de intentar mas tarde.',
+        'error'
+      );
+      setIsLoading(false);
+    } else {
+      openToast(
+        'Se canceló el viaje con éxito. Se notifcará a todos los pasajeros.',
+        'success'
+      );
+      router.push('/driver');
+    }
   };
 
   return (
@@ -73,20 +125,24 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
           <div className="w-full flex flex-col">{renderPassengers()}</div>
 
           <div className="mt-10">
-            {/* <div className="w-full my-3">
-              <CustomButton onClick={handleRejectBtnClick}>
-                Rechazar solicitud
+            <div className="w-full my-3">
+              <CustomButton onClick={handleCancelTripBtnClick} variant="error">
+                Cancelar viaje
               </CustomButton>
             </div>
-
-            <div className="w-full my-3">
-              <CustomButton onClick={handleAcceptBtnClick} variant="primary">
-                Aceptar solicitud
-              </CustomButton>
-            </div> */}
           </div>
+          <AlertDialog
+            open={openAlert}
+            handleClose={() => setOpenAlert(false)}
+            title={alertTitle}
+            description={alertMessage}
+            agreeText="Si, continuar"
+            disagreeText="Cancelar"
+            handleAgree={handleAction}
+          />
         </div>
       </div>
+      <CustomBackdrop open={isLoading} />
     </MainLayout>
   );
 };

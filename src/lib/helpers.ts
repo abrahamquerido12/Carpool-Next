@@ -167,3 +167,13 @@ export const getDaysUntilTrip = (tripDate: string) => {
 
   return days;
 };
+
+export const encodeString = (str: string) => {
+  return encodeURIComponent(str).replace(/%20/g, '+');
+};
+
+export const getWhatsappLink = (phone: string, message: string): string => {
+  const baseUrl = 'https://api.whatsapp.com/send?phone=';
+  const encodedMessage = encodeString(message);
+  return `${baseUrl}${phone}&text=${encodedMessage}`;
+};
