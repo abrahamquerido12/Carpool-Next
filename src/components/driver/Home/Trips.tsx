@@ -1,14 +1,15 @@
 import requestImage from '@/../public/request.svg';
 import Image from 'next/image';
 import TripRequests from '../tripRequests/TripRequests';
+import UpcomingTrips from './upcomingTrips/UpcomingTrips';
 
 interface TripsProps {
-  trips: any | null;
+  upcomingTrips: any | null;
   tripRequests: any | null;
 }
 
-const Trips = ({ trips, tripRequests }: TripsProps) => {
-  if (!trips?.length)
+const Trips = ({ upcomingTrips, tripRequests }: TripsProps) => {
+  if (!upcomingTrips?.length && !tripRequests?.length)
     return (
       <div className="flex flex-col items-center justify-center w-full h-full">
         <Image src={requestImage} alt="No hay viajes" className="mt-5 w-1/2" />
@@ -20,7 +21,12 @@ const Trips = ({ trips, tripRequests }: TripsProps) => {
       </div>
     );
 
-  return <TripRequests tripRequests={tripRequests}></TripRequests>;
+  return (
+    <div className="flex flex-col w-full">
+      <UpcomingTrips upcomingTrips={upcomingTrips} />
+      <TripRequests tripRequests={tripRequests} />
+    </div>
+  );
 };
 
 export default Trips;
