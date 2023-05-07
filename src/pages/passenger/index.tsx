@@ -117,12 +117,18 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     return req.status === 'PENDING' && tripDate >= today;
   });
 
+  console.log(upcomingTrips);
+
   return {
     props: {
       // pass driver as json to the client
       user: JSON.parse(JSON.stringify(user)) || null,
-      upcomingTrips: JSON.parse(JSON.stringify(upcomingTrips)) || null,
-      tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
+      upcomingTrips: upcomingTrips
+        ? JSON.parse(JSON.stringify(upcomingTrips))
+        : [],
+      tripRequests: tripRequests
+        ? JSON.parse(JSON.stringify(tripRequests))
+        : [],
     },
   };
 };
