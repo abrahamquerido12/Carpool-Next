@@ -85,36 +85,6 @@ const SignUpPage = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // if (
-    //   !firstName ||
-    //   !firstLastName ||
-    //   !secondLastName ||
-    //   !email ||
-    //   !password ||
-    //   !confirmPassword ||
-    //   !phone
-    // ) {
-    //   return openToast('Por favor llena todos los campos', 'error');
-    // }
-
-    // if (password !== confirmPassword) {
-    //   return openToast('Las contraseñas no coinciden', 'error');
-    // }
-
-    // if (phone.length !== 10) {
-    //   return openToast('El número de teléfono debe ser de 10 dígitos', 'error');
-    // }
-
-    // const emailRegex = new RegExp(
-    //   '^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$'
-    // );
-
-    // const emailDomain = email.split('@')[1];
-
-    // if (!emailRegex.test(email) || emailDomain !== 'ceti.mx') {
-    //   return openToast('El correo electrónico debe ser válido', 'error');
-    // }
-
     const data = {
       firstName,
       firstLastName,
@@ -139,15 +109,14 @@ const SignUpPage = () => {
       }, 2000);
 
       setLoading(false);
-      setMessage('Usuario creado correctamente');
-      setSeverity('success');
-      setOpen(true);
+      openToast(
+        'Usuario creado correctamente. Favor de revisar su correo electrónico para validar su cuenta.',
+        'success'
+      );
     } else {
       setLoading(false);
 
-      setMessage('Error al crear usuario');
-      setSeverity('error');
-      setOpen(true);
+      openToast('Error al crear usuario', 'error');
     }
   };
 

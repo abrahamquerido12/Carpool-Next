@@ -41,7 +41,7 @@ const TripDetailsPage = ({ trip }: { trip: any }) => {
   return (
     <MainLayout>
       <div className="w-full md:w-1/2">
-        <GoBackHeader onClick={() => router.push('/driver/trips')} />
+        <GoBackHeader onClick={() => router.push('/driver')} />
         <h1 className="text-3xl font-bold text-cxBlue">Detalles del viaje</h1>
         <div className="w-full flex-col  px-3 mt-3 ">
           <h2 className="text-[1.3rem] text-gray-500 font-semibold mb-3">

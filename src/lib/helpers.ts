@@ -122,7 +122,12 @@ export const validateSignupData = (data: DataI) => {
 
   const emailDomain = email.split('@')[1];
 
-  if (!emailRegex.test(email) || emailDomain !== 'ceti.mx') {
+  if (!emailRegex.test(email)) {
+    isValid = false;
+    errorMsg = 'El correo electrónico no es válido';
+  }
+
+  if (process.env.ONLY_CETI === 'True' && emailDomain !== 'ceti.mx') {
     isValid = false;
     errorMsg = 'El correo electrónico no es válido';
   }
