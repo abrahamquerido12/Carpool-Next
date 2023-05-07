@@ -4,7 +4,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 import { getDateTitle, getFormattedDepartureTime } from '@/lib/helpers';
-import TripStatusBadge from '@/TripStatusBadge';
+import TripStatusBadge from '../../../TripStatusBadge';
 
 interface Props {
   trip: any;
