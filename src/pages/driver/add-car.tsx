@@ -4,7 +4,7 @@ import { AlertColor, TextField } from '@mui/material';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import CustomButton from '../../components/Button';
 import CustomToast from '../../components/CustomToast';
 import FilteredSelect from '../../components/FilteredSelect';
@@ -12,6 +12,7 @@ import GoBackHeader from '../../components/GoBackHeader';
 import { saveCarData } from '../../lib/api/driverReqs';
 import { CarDto } from '../../lib/api/driverReqs/driverTypes';
 import prisma from '../../lib/prisma';
+import { UseToastContext } from '../_app';
 
 const colors = [
   'Rojo',
@@ -37,6 +38,8 @@ const AddCarPage = (props: AddCarPageProps) => {
     carBrands,
     driver: { car },
   } = props;
+
+  const { openToast } = useContext(UseToastContext);
 
   const [isToastOpen, setIsToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -95,18 +98,10 @@ const AddCarPage = (props: AddCarPageProps) => {
     const response = await saveCarData(data);
 
     if (response.status === 201) {
-      // time to redirect to the driver dashboard
-      setTimeout(() => {
-        router.push('/driver');
-      }, 2000);
-
-      setToastMessage('Vehículo registrado con éxito');
-      setToastSeverity('success');
-      setIsToastOpen(true);
+      openToast('Vehículo registrado con éxito', 'success');
+      router.push('/driver');
     } else {
-      setToastMessage('Hubo un error al registrar el vehículo');
-      setToastSeverity('error');
-      setIsToastOpen(true);
+      openToast('Hubo un error al registrar el vehículo', 'error');
     }
   };
 
