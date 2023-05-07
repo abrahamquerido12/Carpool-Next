@@ -43,7 +43,7 @@ const UserType = () => {
 
         <div className="flex items-center justify-center mt-5">
           <button
-            className="h-48 w-48 text-center flex justify-center items-center flex-col  bg-white shadow-lg border border-gray-50   rounded-md m-2 hover:bg-gray-50 hover:-translate-y-1 transition duration-300 ease-in-out"
+            className="h-48 w-44 text-center flex justify-center items-center flex-col  bg-white shadow-lg border border-gray-50   rounded-md m-2 hover:bg-gray-50 hover:-translate-y-1 transition duration-300 ease-in-out"
             onClick={() => handleUserType('driver')}
           >
             <Image
@@ -56,7 +56,7 @@ const UserType = () => {
             Conductor
           </button>
           <button
-            className="h-48 w-48 text-center flex justify-center items-center flex-col  bg-white shadow-lg border border-gray-50   rounded-md m-2 hover:bg-gray-50 hover:-translate-y-1 transition duration-300 ease-in-out"
+            className="h-48 w-44 text-center flex justify-center items-center flex-col  bg-white shadow-lg border border-gray-50   rounded-md m-2 hover:bg-gray-50 hover:-translate-y-1 transition duration-300 ease-in-out"
             onClick={() => handleUserType('passenger')}
           >
             <Image

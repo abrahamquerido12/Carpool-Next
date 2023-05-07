@@ -14,7 +14,7 @@ const WelcomeUser = ({
       <LoadingUserName />
     </>
   ) : (
-    <h1 className="text-[2rem]  text-cxBlue font-semibold ">
+    <h1 className="text-[1.5rem]  text-cxBlue font-semibold ">
       Bienvenido, <br /> {firstName?.toUpperCase()}{' '}
       {firstLastName?.toUpperCase()}
     </h1>

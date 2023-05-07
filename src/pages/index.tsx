@@ -3,6 +3,7 @@ import { getToken } from 'next-auth/jwt';
 
 import { getSession } from 'next-auth/react';
 import MainLayout from '../layouts/MainLayout';
+import prisma from '../lib/prisma';
 
 interface HomeProps {
   user: {
@@ -36,7 +37,22 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  if (!session.user.isUserTypeSelected) {
+  const user = await prisma.user.findFirst({
+    where: {
+      email: session.user.email,
+    },
+  });
+
+  if (!user?.isEmailVerified) {
+    return {
+      redirect: {
+        destination: '/email-verification',
+        permanent: false,
+      },
+    };
+  }
+
+  if (!user.isUserTypeSelected) {
     return {
       redirect: {
         destination: '/user-type',
@@ -45,14 +61,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     };
   }
 
-  if (session.user.isDriver) {
+  if (user.isDriver) {
     return {
       redirect: {
         destination: '/driver',
         permanent: false,
       },
     };
-  } else if (!session.user.isDriver) {
+  } else if (!user.isDriver) {
     return {
       redirect: {
         destination: '/passenger',

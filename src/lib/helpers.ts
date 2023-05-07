@@ -122,7 +122,12 @@ export const validateSignupData = (data: DataI) => {
 
   const emailDomain = email.split('@')[1];
 
-  if (!emailRegex.test(email) || emailDomain !== 'ceti.mx') {
+  if (!emailRegex.test(email)) {
+    isValid = false;
+    errorMsg = 'El correo electrónico no es válido';
+  }
+
+  if (process.env.ONLY_CETI === 'True' && emailDomain !== 'ceti.mx') {
     isValid = false;
     errorMsg = 'El correo electrónico no es válido';
   }
@@ -131,4 +136,44 @@ export const validateSignupData = (data: DataI) => {
     isValid,
     errorMsg,
   };
+};
+
+export const getDateTitle = (dayOfWeek: string, searchedDay: string) => {
+  const weekday = `${weekdays.find((day) => day.value === dayOfWeek)?.label} `;
+
+  const departureDate = new Date(searchedDay).toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'long',
+  });
+
+  return `${weekday} ${departureDate}`;
+};
+
+export const getFormattedDepartureTime = (departureTime: string) => {
+  return new Date(departureTime).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
+export const getDaysUntilTrip = (tripDate: string) => {
+  const date = new Date(tripDate);
+  const today = new Date();
+
+  const diff = date.getTime() - today.getTime();
+
+  const days = Math.floor(diff / (1000 * 3600 * 24));
+
+  return days;
+};
+
+export const encodeString = (str: string) => {
+  return encodeURIComponent(str).replace(/%20/g, '+');
+};
+
+export const getWhatsappLink = (phone: string, message: string): string => {
+  const baseUrl = 'https://api.whatsapp.com/send?phone=';
+  const encodedMessage = encodeString(message);
+  return `${baseUrl}${phone}&text=${encodedMessage}`;
 };

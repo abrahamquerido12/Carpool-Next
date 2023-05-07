@@ -16,15 +16,19 @@ model User {
   id       Int    @id @default(autoincrement())
   email    String @unique
   password String
+  isEmailVerified Boolean @default(false)
 
   isUserTypeSelected Boolean  @default(false)
   isDriver           Boolean?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  
 
   profile   Profile?
   driver    Driver?
   Passenger Passenger?
+
+  verificationToken VerificationToken?
 }
 
 model Profile {
@@ -79,6 +83,22 @@ model WeeklyTrip {
   trips      Trip[]
 }
 
+// model to store email verification tokens
+model VerificationToken {
+  id Int @id @default(autoincrement())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
+
+  token String @unique
+  expiresAt DateTime
+
+  manuallyInvalidated Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum DayOfWeek {
   MONDAY
   TUESDAY
@@ -89,6 +109,21 @@ enum DayOfWeek {
   SUNDAY
 }
 
+model PassengerTrip {
+  id Int @id @default(autoincrement())
+
+  passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  passengerId Int  @unique
+
+  trip   Trip @relation(fields: [tripId], references: [id])
+  tripId Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+}
+
 model Passenger {
   id Int @id @default(autoincrement())
 
@@ -97,10 +132,9 @@ model Passenger {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
-  
-  Trip        Trip?         @relation(fields: [tripId], references: [id])
-  tripId      Int?
 
+  trips       PassengerTrip[]
+  
   TripRequest TripRequest[]
 }
 
@@ -127,7 +161,12 @@ model Trip {
   driverId Int
 
   // up to no. of seats in car passenger can be added
-  passengers Passenger[]
+  // passengers Passenger[]
+
+  passengers PassengerTrip[]
+
+
+
 
   date        DateTime
   isRecurrent Boolean
@@ -136,6 +175,8 @@ model Trip {
   updatedAt DateTime @updatedAt
 
   TripRequest TripRequest[]
+
+  
 
   // Clave foránea que hace referencia a WeeklyTrip
   weeklyTrip   WeeklyTrip @relation(fields: [weeklyTripId], references: [id])
@@ -148,6 +189,7 @@ enum TripStatus {
   PENDING
   IN_PROGRESS
   FINISHED
+  CANCELLED
 }
 
 model TripRequest {
@@ -180,4 +222,5 @@ enum TripRequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+  EXPIRED
 }

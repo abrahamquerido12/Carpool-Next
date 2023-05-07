@@ -64,6 +64,7 @@ export const options = {
         return {
           id: user.id,
           email: user.email,
+          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -90,6 +91,7 @@ export const options = {
         session.user.id = user?.id;
         session.user.isDriver = user?.isDriver;
         session.user.isUserTypeSelected = user?.isUserTypeSelected;
+        session.user.emailVerified = user?.emailVerified;
       }
 
       return session;

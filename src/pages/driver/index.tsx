@@ -2,26 +2,25 @@ import { GetServerSidePropsContext } from 'next';
 
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 import MissingDataCard from '../../components/MissingDataCard';
 import WelcomeUser from '../../components/WelcomeUser';
 import DriverHeader from '../../components/driver/DriverHeader';
 import Trips from '../../components/driver/Home/Trips';
-import { UserContext } from '../../contexts/userCtx';
 import MainLayout from '../../layouts/MainLayout';
 import prisma from '../../lib/prisma';
 
 interface DriverHomeProps {
   driver: any;
+  user: any;
+  tripRequests: any;
+  upcomingTrips: any;
 }
 
 const DriverHome = (props: DriverHomeProps) => {
-  const { driver } = props;
-  const { car, weeklyTrips, trips } = driver || {};
+  const { driver, user, tripRequests, upcomingTrips } = props;
+  const { firstName, firstLastName, loading } = user?.profile || {};
+  const { car, weeklyTrips } = driver || {};
   const router = useRouter();
-
-  const { firstName, firstLastName, loading } = useContext(UserContext);
-  console.log(loading);
 
   const addCar = () => {
     router.push('/driver/add-car');
@@ -50,7 +49,9 @@ const DriverHome = (props: DriverHomeProps) => {
         />
       );
     } else {
-      return <Trips trips={trips} />;
+      return (
+        <Trips upcomingTrips={upcomingTrips} tripRequests={tripRequests} />
+      );
     }
   };
 
@@ -94,20 +95,72 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       email: session.user.email,
     },
     include: {
+      profile: {
+        select: {
+          firstLastName: true,
+          firstName: true,
+          secondLastName: true,
+        },
+      },
       driver: {
         include: {
           car: true,
           weeklyTrips: true,
-          trips: true,
+
+          trips: {
+            include: {
+              TripRequest: true,
+              weeklyTrip: true,
+            },
+          },
         },
       },
     },
   });
 
+  const tripRequests = await prisma.tripRequest.findMany({
+    where: {
+      trip: {
+        driverId: user?.driver?.id,
+      },
+      status: 'PENDING',
+    },
+    include: {
+      trip: {
+        include: {
+          weeklyTrip: true,
+        },
+      },
+    },
+  });
+
+  const today = new Date();
+
+  const trips = await prisma.trip.findMany({
+    where: {
+      driverId: user?.driver?.id,
+      status: 'PENDING',
+    },
+    include: {
+      TripRequest: true,
+      weeklyTrip: true,
+      driver: true,
+      passengers: true,
+    },
+  });
+
+  const upcomingTrips = trips.filter((trip) => {
+    const tripDate = new Date(trip.date);
+    return tripDate >= today && trip.passengers.length > 0;
+  });
+
   return {
     props: {
       // pass driver as json to the client
+      user: JSON.parse(JSON.stringify(user)),
       driver: JSON.parse(JSON.stringify(user?.driver)) || null,
+      tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
+      upcomingTrips: JSON.parse(JSON.stringify(upcomingTrips)) || null,
     },
   };
 };

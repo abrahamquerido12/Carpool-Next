@@ -1,16 +1,16 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sendEmail } from '../../lib/email';
 
 type Data = {
   name: string;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  // log db url
-  console.log(process.env.DATABASE_URL);
+  await sendEmail('abrahamquerido@gmail.com', '1234');
 
   res.status(200).json({ name: 'John Doe' });
 }

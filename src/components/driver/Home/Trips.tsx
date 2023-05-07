@@ -1,12 +1,15 @@
 import requestImage from '@/../public/request.svg';
-import { Trip } from '@prisma/client';
 import Image from 'next/image';
+import TripRequests from '../tripRequests/TripRequests';
+import UpcomingTrips from './upcomingTrips/UpcomingTrips';
+
 interface TripsProps {
-  trips: Trip[] | null;
+  upcomingTrips: any | null;
+  tripRequests: any | null;
 }
 
-const Trips = ({ trips }: TripsProps) => {
-  if (!trips?.length)
+const Trips = ({ upcomingTrips, tripRequests }: TripsProps) => {
+  if (!upcomingTrips?.length && !tripRequests?.length)
     return (
       <div className="flex flex-col items-center justify-center w-full h-full">
         <Image src={requestImage} alt="No hay viajes" className="mt-5 w-1/2" />
@@ -19,8 +22,9 @@ const Trips = ({ trips }: TripsProps) => {
     );
 
   return (
-    <div>
-      <h1>Trips</h1>
+    <div className="flex flex-col w-full">
+      <UpcomingTrips upcomingTrips={upcomingTrips} />
+      <TripRequests tripRequests={tripRequests} />
     </div>
   );
 };
