@@ -20,6 +20,8 @@ import CustomBackdrop from '../../../../components/CustomBackdrop';
 import {
   updateTripRequest,
   useTripRequest,
+  useTripRequests,
+  useUpcomingTrips,
 } from '../../../../lib/api/driverReqs';
 import { UseToastContext } from '../../../_app';
 
@@ -29,6 +31,8 @@ interface Props {
 
 const TripRequestDetailsPage = ({ tripId }: Props) => {
   const { data, isLoading: dataLoading, error } = useTripRequest(tripId);
+  const { mutate: updateReqs } = useTripRequests();
+  const { mutate: updateUpcomingTrips } = useUpcomingTrips();
   const { trip, weeklyTrip } = data || {};
 
   const router = useRouter();
@@ -47,7 +51,7 @@ const TripRequestDetailsPage = ({ tripId }: Props) => {
   const passengerFullName = `${passengerProfile?.firstName} ${passengerProfile?.firstLastName}`;
   const passengerPhone = passengerProfile?.phoneNumber;
 
-  const title = getDateTitle(weeklyTrip?.dayOfWeek, weeklyTrip?.departureTime);
+  const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.trip?.date);
   const time = getFormattedDepartureTime(weeklyTrip?.departureTime);
 
   if (!dataLoading && error) {
@@ -89,6 +93,9 @@ const TripRequestDetailsPage = ({ tripId }: Props) => {
         'Se aceptó solicitud de viaje con éxito. Se notifcará al pasajero para que se comunique contigo.',
         'success'
       );
+      updateReqs();
+      updateUpcomingTrips();
+
       setIsLoading(false);
       router.push('/driver');
     }

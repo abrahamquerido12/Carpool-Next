@@ -99,9 +99,6 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       },
     };
   }
-  console.log({
-    session,
-  });
 
   if (!session.user.isDriver && session.user.isUserTypeSelected) {
     return {

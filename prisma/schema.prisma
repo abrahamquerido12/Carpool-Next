@@ -6,23 +6,22 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  provider          = "postgresql"
+  url               = env("POSTGRES_PRISMA_URL")
+  directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
   shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
+  id              Int     @id @default(autoincrement())
+  email           String  @unique
+  password        String
   isEmailVerified Boolean @default(false)
 
   isUserTypeSelected Boolean  @default(false)
   isDriver           Boolean?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-  
 
   profile   Profile?
   driver    Driver?
@@ -79,8 +78,8 @@ model WeeklyTrip {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  trips      Trip[]
+
+  trips Trip[]
 }
 
 // model to store email verification tokens
@@ -90,7 +89,7 @@ model VerificationToken {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
-  token String @unique
+  token     String   @unique
   expiresAt DateTime
 
   manuallyInvalidated Boolean @default(false)
@@ -113,15 +112,13 @@ model PassengerTrip {
   id Int @id @default(autoincrement())
 
   passenger   Passenger @relation(fields: [passengerId], references: [id], onDelete: Cascade)
-  passengerId Int  @unique
+  passengerId Int
 
   trip   Trip @relation(fields: [tripId], references: [id])
   tripId Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-
 }
 
 model Passenger {
@@ -130,11 +127,11 @@ model Passenger {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  trips       PassengerTrip[]
-  
+  trips PassengerTrip[]
+
   TripRequest TripRequest[]
 }
 
@@ -165,9 +162,6 @@ model Trip {
 
   passengers PassengerTrip[]
 
-
-
-
   date        DateTime
   isRecurrent Boolean
 
@@ -175,8 +169,6 @@ model Trip {
   updatedAt DateTime @updatedAt
 
   TripRequest TripRequest[]
-
-  
 
   // Clave foránea que hace referencia a WeeklyTrip
   weeklyTrip   WeeklyTrip @relation(fields: [weeklyTripId], references: [id])
@@ -201,13 +193,13 @@ model TripRequest {
   trip   Trip @relation(fields: [tripId], references: [id])
   tripId Int
 
-  distanceToOrigin Int?
+  distanceToOrigin      Int?
   distanceToDestination Int?
-  
-  searchedOrigin String?
+
+  searchedOrigin            String?
   searchedOriginCoordinates String?
 
-  searchedDestination String?
+  searchedDestination            String?
   searchedDestinationCoordinates String?
 
   searchedDateTime DateTime?
