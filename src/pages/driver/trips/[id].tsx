@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
+import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import TripOriginIcon from '@mui/icons-material/TripOrigin';
 
 import CustomButton from '@/components/Button';
@@ -32,8 +33,10 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
   const [openAlert, setOpenAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [passengerToDelete, setPassengerToDelete] = useState<any>(null);
+  const [openAlertPassenger, setOpenAlertPassenger] = useState(false);
 
-  const title = getDateTitle(weeklyTrip?.dayOfWeek, weeklyTrip?.departureTime);
+  const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.date);
   const time = getFormattedDepartureTime(weeklyTrip?.departureTime);
 
   const whatsAppMessage = 'Hola, soy tu conductor de SchoolPool.';
@@ -44,6 +47,20 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
       'error'
     );
   }
+
+  const handleRemovePassenger = (passenger: any) => {
+    //open alert and set info of passenger to confirm delete from trip
+    setAlertTitle('Confirmación');
+
+    setAlertMessage(
+      `¿Estás seguro de eliminar al pasajero ${passenger.profile.firstName} ${passenger.profile.firstLastName} del viaje?`
+    );
+    setOpenAlertPassenger(true);
+    //set passenger to delete
+    setPassengerToDelete(passenger);
+  };
+
+  const handleDeletePassengerAction = async () => {};
 
   const renderPassengers = () => {
     if (!passengers || passengers?.length == 0) {
@@ -68,6 +85,12 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
               {phoneNumber}
             </a>
           </p>
+          {passengers.length > 1 && (
+            <RemoveCircleOutlineOutlinedIcon
+              className="ml-auto text-[md] text-red-500"
+              onClick={() => handleRemovePassenger(passenger)}
+            />
+          )}
         </div>
       );
     });
@@ -114,7 +137,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -129,7 +152,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -144,7 +167,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -162,7 +185,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={40}
+                height={30}
                 className="rounded-md"
               />
             ) : (
@@ -185,6 +208,15 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
             agreeText="Si, continuar"
             disagreeText="Cancelar"
             handleAgree={handleAction}
+          />
+          <AlertDialog
+            open={openAlertPassenger}
+            handleClose={() => setOpenAlertPassenger(false)}
+            title={alertTitle}
+            description={alertMessage}
+            agreeText="Si, eliminar"
+            disagreeText="Cancelar"
+            handleAgree={handleDeletePassengerAction}
           />
         </div>
       </div>

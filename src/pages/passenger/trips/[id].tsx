@@ -8,7 +8,11 @@ import TripOriginIcon from '@mui/icons-material/TripOrigin';
 import CustomButton from '@/components/Button';
 import AlertDialog from '@/components/CustomAlertDialog';
 import CustomBackdrop from '@/components/CustomBackdrop';
-import { cancelTrip, useTripDeatils } from '@/lib/api/passengerReqs';
+import {
+  cancelTrip,
+  useTripDeatils,
+  useUpcomingTrips,
+} from '@/lib/api/passengerReqs';
 import {
   getDateTitle,
   getFormattedDepartureTime,
@@ -25,10 +29,8 @@ import { GetServerSidePropsContext } from 'next';
 import { useContext, useState } from 'react';
 
 const TripDetailsPage = ({ tripId }: { tripId: number }) => {
-  //   const [trip, setTrip] = useState<any>(null);
   const { data: trip, error, isLoading: dataLoading } = useTripDeatils(tripId);
-  //   const [dataLoading, setDataLoading] = useState(true);
-
+  const { mutate } = useUpcomingTrips();
   const { weeklyTrip, driver } = trip?.trip || {};
   const { firstName, firstLastName, phoneNumber } = driver?.user.profile || {};
   const { brand, color, model, plate } = driver?.car || {};
@@ -66,6 +68,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
         'Se canceló el viaje con éxito. Se notifcará al conductor.',
         'success'
       );
+      mutate();
       router.push('/driver');
     }
   };
@@ -86,7 +89,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -101,7 +104,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -116,7 +119,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 <Skeleton
                   variant="rectangular"
                   width="100%"
-                  height={40}
+                  height={30}
                   className="rounded-md"
                 />
               ) : (
@@ -135,7 +138,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={40}
+                height={30}
                 className="rounded-md"
               />
             ) : (
@@ -161,7 +164,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={40}
+                height={30}
                 className="rounded-md"
               />
             ) : (
@@ -176,7 +179,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
               <Skeleton
                 variant="rectangular"
                 width="100%"
-                height={40}
+                height={30}
                 className="rounded-md"
               />
             ) : (

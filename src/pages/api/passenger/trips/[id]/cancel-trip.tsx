@@ -64,12 +64,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         'DD/MM/YYYY HH:mm'
       );
 
-      //   if (phone && process.env.NODE_ENV === 'production') {
-      await sendSms(
-        `+52${phone}`,
-        `El pasajero ${passsengerName} ha cancelado su viaje con fecha y hora ${tripDateTime}`
-      );
-      //   }
+      if (phone && process.env.NODE_ENV === 'production') {
+        await sendSms(
+          `+52${phone}`,
+          `El pasajero ${passsengerName} ha cancelado su viaje con fecha y hora ${tripDateTime}`
+        );
+      }
 
       res.status(200).json(deletedPassenger);
     } catch (error) {

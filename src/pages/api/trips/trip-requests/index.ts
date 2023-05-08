@@ -74,7 +74,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if (!trip) {
         trip = await prisma.trip.create({
           data: {
-            date: date as string,
+            date: searchedDateTime as string,
             isRecurrent: isRecurrent as boolean,
             status: 'PENDING',
             weeklyTripId: weeklyT?.id as number,
