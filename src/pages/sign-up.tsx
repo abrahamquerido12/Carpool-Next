@@ -14,9 +14,6 @@ import { createUser } from '../lib/api/general';
 import { validateSignupData } from '../lib/helpers';
 import { UseToastContext } from './_app';
 
-// log db url from .env
-console.log(process.env.NEXT_PUBLIC_DB_URL);
-
 const signupSteps = [
   {
     title: '',
@@ -106,13 +103,17 @@ const SignUpPage = () => {
       setTimeout(() => {
         // add email to url query params
         router.push(`/login?email=${email}`);
-      }, 2000);
+      }, 1000);
 
       setLoading(false);
       openToast(
         'Usuario creado correctamente. Favor de revisar su correo electrónico para validar su cuenta.',
         'success'
       );
+    } else if (response.status === 400) {
+      setLoading(false);
+
+      openToast('Correo electrónico ya existe', 'error');
     } else {
       setLoading(false);
 

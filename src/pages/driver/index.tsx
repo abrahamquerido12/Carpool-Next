@@ -158,9 +158,13 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     props: {
       // pass driver as json to the client
       user: JSON.parse(JSON.stringify(user)),
-      driver: JSON.parse(JSON.stringify(user?.driver)) || null,
-      tripRequests: JSON.parse(JSON.stringify(tripRequests)) || null,
-      upcomingTrips: JSON.parse(JSON.stringify(upcomingTrips)) || null,
+      driver: JSON.parse(JSON.stringify(user?.driver)) ?? null,
+      tripRequests: tripRequests
+        ? JSON.parse(JSON.stringify(tripRequests))
+        : [],
+      upcomingTrips: upcomingTrips
+        ? JSON.parse(JSON.stringify(upcomingTrips))
+        : [],
     },
   };
 };

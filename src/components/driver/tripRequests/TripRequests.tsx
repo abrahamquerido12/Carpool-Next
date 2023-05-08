@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import Trip from './Trip';
 
 const TripRequests = ({ tripRequests }: { tripRequests: any }) => {
@@ -9,11 +8,11 @@ const TripRequests = ({ tripRequests }: { tripRequests: any }) => {
           Solicitudes de viaje pendientes
         </h2>
 
-        <Link href={'/driver/trips/trip-requests'}>
+        {/* <Link href={'/driver/trips/trip-requests'}>
           <span className="text-blue-600 text-sm cursor-pointer whitespace-nowrap">
-            Ver todos
+            Ver todas
           </span>
-        </Link>
+        </Link> */}
       </div>
       {tripRequests.map((tripRequest: any) => (
         <Trip tripRequest={tripRequest} key={tripRequest.id}></Trip>
