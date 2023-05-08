@@ -1,4 +1,4 @@
-import { CetiData, weekdays } from '@/lib/helpers';
+import { CetiData, formatWalkingTime, weekdays } from '@/lib/helpers';
 import 'dayjs/locale/es'; // importar el idioma si se requiere
 import { useRouter } from 'next/router';
 import React, { useContext } from 'react';
@@ -57,11 +57,12 @@ const TripDetails = ({ trip, goBack }: TripDetailsProps) => {
       ? Math.round(trip.distanceToDestination / 1.39)
       : Math.round(trip.distanceToOrigin / 1.39);
 
-  const walkingTimeFormatted =
-    walkingTime > 3600
-      ? `${Math.floor(walkingTime / 60)}
-          hrs y ${walkingTime % 60}min`
-      : `${Math.round(walkingTime / 60)}min`;
+  // const walkingTimeFormatted =
+  //   walkingTime > 3600
+  //     ? `${Math.floor(walkingTime / 60)} hrs y ${walkingTime % 60} min`
+  //     : `${Math.round(walkingTime / 60)} min`;
+
+  const walkingTimeFormatted = formatWalkingTime(walkingTime);
 
   const handleOpenGoogleMaps = () => {
     let originCoordinates, destinationCoordinates;
@@ -136,14 +137,16 @@ const TripDetails = ({ trip, goBack }: TripDetailsProps) => {
             <span className="text-end">{trip.destination}</span>
           </div>
 
-          <div className="flex w-full my-2 items-center justify-between">
+          <div className="flex w-full my-2 items-start justify-between">
             <div className="flex flex-col w-[50%]">
               <span className="mr-4 text-lg font-semibold ">Ditancia: </span>
               <span className="mr-4 text-xs font-normal">{distanceLabel}</span>
             </div>
             <div className="flex flex-col flex-1 w-[50%]  items-end">
-              <span>{distance()}</span>
-              <span>{walkingTimeFormatted} caminando</span>
+              <span className="text-sm text-right">{distance()}</span>
+              <span className="text-sm text-right">
+                {walkingTimeFormatted} caminando
+              </span>
             </div>
           </div>
 
