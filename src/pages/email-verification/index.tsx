@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import Image from 'next/image';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import EmailImg from '../../../public/email.svg';
 import MainLayout from '../../layouts/MainLayout';
 import { resendVerificationEmail } from '../../lib/api/general';
@@ -11,12 +11,11 @@ const EmailVerificationPage = () => {
   let interval: any;
   const { openToast } = useContext(UseToastContext);
   const [resended, setResended] = React.useState(false);
-  const [timer, setTimer] = React.useState(60);
+  const [timer, setTimer] = React.useState(10);
 
   const handleResendEmail = async () => {
-    setResended(true);
-
     const res = await resendVerificationEmail();
+    setResended(true);
 
     if (res.status !== 200)
       return openToast(
@@ -26,25 +25,17 @@ const EmailVerificationPage = () => {
 
     openToast('Correo enviado', 'success');
     interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
+      setTimer((prev) => {
+        if (prev === 0) {
+          setResended(false);
+          clearInterval(interval);
+          return 10;
+        }
 
-      if (timer === 0) {
-        clearInterval(interval);
-        setResended(false);
-
-        setTimer(0);
-        return;
-      }
+        return prev - 1;
+      });
     }, 1000);
   };
-
-  useEffect(() => {
-    if (timer === 0) {
-      setResended(false);
-      clearInterval(interval);
-      setTimer(60);
-    }
-  }, [timer]);
 
   return (
     <MainLayout>

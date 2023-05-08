@@ -53,7 +53,10 @@ const UpcomingTrip = ({ trip }: Props) => {
           </div>
         </div>
         <span className="pl-2 itlaic w-full text-left text-red-400">
-          En {daysUntilTrip} {daysUntilTrip > 1 ? 'días' : 'día'}
+          En{' '}
+          {daysUntilTrip === 0
+            ? 'Hoy'
+            : `${daysUntilTrip} ${daysUntilTrip > 1 ? 'días' : 'día'}`}
         </span>
         <div className="flex items-center justify-start w-full ">
           <p className="overflow-hidden whitespace-nowrap max-w-[10rem]  opacity-80">

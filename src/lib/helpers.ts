@@ -163,7 +163,7 @@ export const getDaysUntilTrip = (tripDate: string) => {
 
   const diff = date.getTime() - today.getTime();
 
-  const days = Math.floor(diff / (1000 * 3600 * 24));
+  const days = Math.ceil(diff / (1000 * 3600 * 24));
 
   return days;
 };
@@ -176,4 +176,15 @@ export const getWhatsappLink = (phone: string, message: string): string => {
   const baseUrl = 'https://api.whatsapp.com/send?phone=';
   const encodedMessage = encodeString(message);
   return `${baseUrl}${phone}&text=${encodedMessage}`;
+};
+
+export const formatWalkingTime = (walkingTime: number): string => {
+  const hours = Math.floor(walkingTime / 3600);
+  const minutes = Math.round((walkingTime % 3600) / 60);
+
+  if (hours > 0) {
+    return `${hours} hrs y ${minutes} min`;
+  } else {
+    return `${minutes} min`;
+  }
 };
