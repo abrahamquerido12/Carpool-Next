@@ -16,10 +16,51 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   // only post allowed
-  if (req.method !== 'PUT') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  } else {
+  if (req.method === 'GET') {
+    try {
+      const { id } = req.query;
+      if (!id) return res.status(400).json({ error: 'Missing id' });
+      const tripReq = await prisma.tripRequest.findFirst({
+        where: {
+          id: +id,
+        },
+        include: {
+          passenger: {
+            include: {
+              user: {
+                include: {
+                  profile: true,
+                },
+              },
+            },
+          },
+          trip: {
+            include: {
+              passengers: true,
+            },
+          },
+        },
+      });
+
+      const weeklyTrip = await prisma.weeklyTrip.findFirst({
+        where: {
+          id: tripReq?.trip?.weeklyTripId,
+        },
+      });
+
+      res.status(200).json({
+        weeklyTrip,
+        trip: tripReq,
+      });
+      return;
+    } catch (e) {
+      console.log(e);
+
+      res.status(500).json({ error: 'Internal Server Error', e });
+      return;
+    }
+  }
+  if (req.method === 'POST') {
     const { id } = req.query;
     const { acceptTrip } = req.body;
 
@@ -93,6 +134,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     res.status(200).json(trip);
+    return;
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 };

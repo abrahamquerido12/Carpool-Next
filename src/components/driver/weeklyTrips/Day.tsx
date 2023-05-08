@@ -1,5 +1,6 @@
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { Skeleton } from '@mui/material';
 import dayjs from 'dayjs';
 import { useContext, useState } from 'react';
 import { deleteTrip } from '../../../lib/api/driverReqs';
@@ -17,9 +18,10 @@ interface Props {
   title: string;
   trips: any[];
   dayVal: string;
+  isLoading: boolean;
 }
 
-const Day = ({ title, trips, dayVal }: Props) => {
+const Day = ({ title, trips, dayVal, isLoading }: Props) => {
   const { openToast } = useContext(UseToastContext);
   const { refreshData } = useContext(WeeklyTripsContext);
   const [selectedTrip, setSelectedTrip] = useState<any>(null);
@@ -72,7 +74,9 @@ const Day = ({ title, trips, dayVal }: Props) => {
 
   return (
     <CustomAccordion title={title}>
-      <div className="flex items-start flex-col ">{renderTrips()}</div>
+      <div className="flex items-start flex-col ">
+        {isLoading ? <Skeleton width="100%" height={100} /> : renderTrips()}
+      </div>
 
       <AddWeeklyTrip day={title} dayVal={dayVal} />
       <CustomDialog onClose={handleOnClose} open={isDeleting}>

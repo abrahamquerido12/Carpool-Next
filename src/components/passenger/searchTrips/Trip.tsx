@@ -4,6 +4,7 @@ import DirectionsWalkOutlinedIcon from '@mui/icons-material/DirectionsWalkOutlin
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 
 import dayjs from 'dayjs';
+import { formatWalkingTime } from '../../../lib/helpers';
 
 interface Props {
   trip: {
@@ -37,11 +38,7 @@ const Trip = ({ trip, onClick }: Props) => {
       ? Math.round(trip.distanceToDestination / 1.39)
       : Math.round(trip.distanceToOrigin / 1.39);
 
-  const walkingTimeFormatted =
-    walkingTime > 3600
-      ? `${Math.floor(walkingTime / 60)}
-      hrs y ${walkingTime % 60} min`
-      : `${Math.round(walkingTime / 60)} min`;
+  const walkingTimeFormatted = formatWalkingTime(walkingTime);
 
   return (
     <div

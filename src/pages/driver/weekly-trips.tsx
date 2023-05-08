@@ -2,11 +2,12 @@ import GoBackHeader from '@/components/GoBackHeader';
 import Day from '@/components/driver/weeklyTrips/Day';
 import MainLayout from '@/layouts/MainLayout';
 import { groupTrips, weekdays } from '@/lib/helpers';
-import prisma from '@/lib/prisma';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { createContext, useMemo } from 'react';
+import { createContext, useContext, useMemo } from 'react';
+import { useWeeklyTrips } from '../../lib/api/driverReqs';
+import { UseToastContext } from '../_app';
 
 export const WeeklyTripsContext = createContext<{
   refreshData: () => void;
@@ -14,11 +15,9 @@ export const WeeklyTripsContext = createContext<{
   refreshData: () => {},
 });
 
-interface Props {
-  trips: any;
-}
-
-const WeeklyTrips = ({ trips: rawTrips }: Props) => {
+const WeeklyTrips = () => {
+  const { data: rawTrips, isLoading, error } = useWeeklyTrips();
+  const { openToast } = useContext(UseToastContext);
   const router = useRouter();
   const trips = useMemo(() => {
     if (!rawTrips) return [];
@@ -29,6 +28,10 @@ const WeeklyTrips = ({ trips: rawTrips }: Props) => {
     router.replace(router.asPath);
   };
 
+  if (!isLoading && error) {
+    openToast('Ocurrión un error al obtener los viajes semanales', 'error');
+  }
+
   const renderDays = () => {
     return weekdays.map((day) => {
       return (
@@ -37,6 +40,7 @@ const WeeklyTrips = ({ trips: rawTrips }: Props) => {
             trips={trips[day.value as keyof typeof trips]}
             title={day.label}
             dayVal={day.value}
+            isLoading={isLoading}
           />
         </div>
       );
@@ -75,20 +79,7 @@ export const getServerSideProps = async (
     };
   }
 
-  const user = await prisma.user.findFirst({
-    where: {
-      email: session?.user?.email,
-    },
-    select: {
-      driver: {
-        include: {
-          weeklyTrips: true,
-        },
-      },
-    },
-  });
-
-  if (!user?.driver) {
+  if (!session?.user.isDriver && session.user.isUserTypeSelected) {
     return {
       redirect: {
         destination: '/',
@@ -98,8 +89,6 @@ export const getServerSideProps = async (
   }
 
   return {
-    props: {
-      trips: JSON.parse(JSON.stringify(user?.driver?.weeklyTrips)),
-    },
+    props: {},
   };
 };

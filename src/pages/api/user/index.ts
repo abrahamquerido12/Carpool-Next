@@ -20,8 +20,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           email: session.user.email,
         },
         include: {
-          driver: true,
-          Passenger: true,
           profile: true,
         },
       });

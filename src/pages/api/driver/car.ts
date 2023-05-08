@@ -12,6 +12,33 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return;
   }
 
+  if (req.method === 'GET') {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          email: session.user.email,
+        },
+        include: {
+          driver: {
+            select: {
+              car: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        res.status(404).json({ error: 'User not found' });
+        return;
+      }
+
+      res.status(200).json(user.driver?.car);
+      return;
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ error: 'Something went wrong' });
+    }
+  }
   if (req.method === 'POST') {
     try {
       const data = req.body;

@@ -1,6 +1,6 @@
 import MainLayout from '@/layouts/MainLayout';
 import cars from '@/lib/cars.json';
-import { AlertColor, TextField } from '@mui/material';
+import { AlertColor, Skeleton, TextField } from '@mui/material';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -9,9 +9,8 @@ import CustomButton from '../../components/Button';
 import CustomToast from '../../components/CustomToast';
 import FilteredSelect from '../../components/FilteredSelect';
 import GoBackHeader from '../../components/GoBackHeader';
-import { saveCarData } from '../../lib/api/driverReqs';
+import { saveCarData, useCarData } from '../../lib/api/driverReqs';
 import { CarDto } from '../../lib/api/driverReqs/driverTypes';
-import prisma from '../../lib/prisma';
 import { UseToastContext } from '../_app';
 
 const colors = [
@@ -27,17 +26,12 @@ const colors = [
   'Morado',
 ];
 
-interface AddCarPageProps {
-  carBrands: string[];
-  driver: any;
-}
+const AddCarPage = () => {
+  const { data: car, isLoading, error } = useCarData();
 
-const AddCarPage = (props: AddCarPageProps) => {
+  const carBrands = cars.map((car) => car.brand);
+
   const router = useRouter();
-  const {
-    carBrands,
-    driver: { car },
-  } = props;
 
   const { openToast } = useContext(UseToastContext);
 
@@ -54,6 +48,11 @@ const AddCarPage = (props: AddCarPageProps) => {
   const [color, setColor] = useState<string | null>(car?.color || '');
 
   const [seat, setSeats] = useState<string | null>(car?.seats || '');
+
+  if (!isLoading && error) {
+    openToast('Ocurrió un error al obtener los datos del conductor', 'error');
+    router.push('/driver');
+  }
 
   const handleCarBrandChange = (value: string) => {
     setCarBrand(value);
@@ -112,6 +111,16 @@ const AddCarPage = (props: AddCarPageProps) => {
     }
   }, [carBrand]);
 
+  useEffect(() => {
+    if (car) {
+      setCarBrand(car.brand);
+      setCarModel(car.model);
+      setPlaca(car.plate);
+      setColor(car.color);
+      setSeats(car.seats.toString());
+    }
+  }, [car]);
+
   return (
     <MainLayout>
       <div className="w-full flex flex-col justify-start items-start md:w-1/2">
@@ -120,51 +129,71 @@ const AddCarPage = (props: AddCarPageProps) => {
           Registrar Vehículo
         </h1>
         <form className="w-full" onSubmit={handleSubmit}>
+          {isLoading ? (
+            <Skeleton width="100%" height={50} />
+          ) : (
+            <div className="w-full my-5">
+              <FilteredSelect
+                options={carBrands}
+                label="Marca"
+                value={carBrand}
+                onChange={handleCarBrandChange}
+              />
+            </div>
+          )}
           <div className="w-full my-5">
-            <FilteredSelect
-              options={carBrands}
-              label="Marca"
-              value={carBrand}
-              onChange={handleCarBrandChange}
-            />
+            {isLoading ? (
+              <Skeleton width="100%" height={50} />
+            ) : (
+              <FilteredSelect
+                options={carModels}
+                label="Modelo"
+                value={carModel}
+                onChange={handleCarModelChange}
+                disabled={!carBrand}
+              />
+            )}
           </div>
           <div className="w-full my-5">
-            <FilteredSelect
-              options={carModels}
-              label="Modelo"
-              value={carModel}
-              onChange={handleCarModelChange}
-              disabled={!carBrand}
-            />
-          </div>
-          <div className="w-full my-5">
-            <TextField
-              id="outlined-basic"
-              label="Placa"
-              variant="outlined"
-              fullWidth
-              value={placa}
-              onChange={handlePlacaChange}
-              placeholder='Ej: "ABC1234"'
-            />
+            {isLoading ? (
+              <Skeleton width="100%" height={50} />
+            ) : (
+              <TextField
+                id="outlined-basic"
+                label="Placa"
+                variant="outlined"
+                fullWidth
+                value={placa}
+                onChange={handlePlacaChange}
+                placeholder='Ej: "ABC1234"'
+              />
+            )}
           </div>
 
           <div className="w-full my-5">
-            <FilteredSelect
-              options={colors}
-              label="Color"
-              value={color}
-              onChange={handleColorChange}
-            />
+            {isLoading ? (
+              <Skeleton width="100%" height={50} />
+            ) : (
+              <FilteredSelect
+                options={colors}
+                label="Color"
+                value={color}
+                onChange={handleColorChange}
+              />
+            )}
           </div>
 
           <div className="w-full my-5">
-            <FilteredSelect
-              options={['1', '2', '3', ' 4', '5']}
-              label="Asientos(sin incluir el conductor)"
-              value={seat}
-              onChange={handleSeatChange}
-            />
+            {isLoading ? (
+              <Skeleton width="100%" height={50} />
+            ) : (
+              <FilteredSelect
+                options={['1', '2', '3', ' 4', '5']}
+                label="Asientos(sin incluir el conductor)"
+                value={seat}
+                onChange={handleSeatChange}
+              />
+            )}
           </div>
 
           <div className="w-full mt-5">
@@ -208,24 +237,9 @@ export const getServerSideProps: GetServerSideProps = async (
     };
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      driver: {
-        include: {
-          car: true,
-        },
-      },
-    },
-  });
-
-  const carBrands = cars.map((car) => car.brand);
-
   return {
     props: {
       session,
-      carBrands,
-      driver: JSON.parse(JSON.stringify(user?.driver)),
     },
   };
 };

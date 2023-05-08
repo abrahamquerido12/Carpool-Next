@@ -3,14 +3,12 @@ import MainLayout from '@/layouts/MainLayout';
 import { useRouter } from 'next/router';
 
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
-import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
 import TripOriginIcon from '@mui/icons-material/TripOrigin';
 
 import CustomButton from '@/components/Button';
 import AlertDialog from '@/components/CustomAlertDialog';
 import CustomBackdrop from '@/components/CustomBackdrop';
-import { cancelTrip, useTripDeatils } from '@/lib/api/driverReqs';
+import { cancelTrip, useTripDeatils } from '@/lib/api/passengerReqs';
 import {
   getDateTitle,
   getFormattedDepartureTime,
@@ -18,13 +16,22 @@ import {
 } from '@/lib/helpers';
 import { UseToastContext } from '@/pages/_app';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DirectionsCarFilledOutlinedIcon from '@mui/icons-material/DirectionsCarFilledOutlined';
+import EightMpOutlinedIcon from '@mui/icons-material/EightMpOutlined';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
 import { Skeleton } from '@mui/material';
 import { GetServerSidePropsContext } from 'next';
 import { useContext, useState } from 'react';
 
 const TripDetailsPage = ({ tripId }: { tripId: number }) => {
-  const { data: trip, isLoading: dataLoading, error } = useTripDeatils(tripId);
-  const { weeklyTrip, passengers } = trip || {};
+  //   const [trip, setTrip] = useState<any>(null);
+  const { data: trip, error, isLoading: dataLoading } = useTripDeatils(tripId);
+  //   const [dataLoading, setDataLoading] = useState(true);
+
+  const { weeklyTrip, driver } = trip?.trip || {};
+  const { firstName, firstLastName, phoneNumber } = driver?.user.profile || {};
+  const { brand, color, model, plate } = driver?.car || {};
   const { openToast } = useContext(UseToastContext);
   const router = useRouter();
 
@@ -36,42 +43,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
   const title = getDateTitle(weeklyTrip?.dayOfWeek, weeklyTrip?.departureTime);
   const time = getFormattedDepartureTime(weeklyTrip?.departureTime);
 
-  const whatsAppMessage = 'Hola, soy tu conductor de SchoolPool.';
-
-  if (!dataLoading && error) {
-    openToast(
-      'Ocurrión un error al cargar los datos. Favor de intentar mas tarde.',
-      'error'
-    );
-  }
-
-  const renderPassengers = () => {
-    if (!passengers || passengers?.length == 0) {
-      return <div>No hay pasajeros que mostrar</div>;
-    }
-    return passengers.map((passenger: any) => {
-      const { firstName, firstLastName, phoneNumber } = passenger.profile;
-      return (
-        <div
-          key={passenger.id}
-          className="w-full flex my-2 flex-start items-center"
-        >
-          <PersonOutlineOutlinedIcon className="mr-2 inline-block text-[md] text-cxBlue" />
-          <p className="overflow-hidden   font-medium flex items-center ">
-            {firstName + ' ' + firstLastName}
-            <PhoneIphoneOutlinedIcon className="inline-block text-[md] ml-2 text-cxBlue" />{' '}
-            <a
-              className="underline decoration-cxBlue"
-              href={getWhatsappLink(phoneNumber, whatsAppMessage)}
-              target="_blank"
-            >
-              {phoneNumber}
-            </a>
-          </p>
-        </div>
-      );
-    });
-  };
+  const whatsAppMessage = 'Hola, soy pasajero en tu viaje de SchoolPool.';
 
   const handleCancelTripBtnClick = async () => {
     setAlertTitle('Confirmación');
@@ -91,7 +63,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
       setIsLoading(false);
     } else {
       openToast(
-        'Se canceló el viaje con éxito. Se notifcará a todos los pasajeros.',
+        'Se canceló el viaje con éxito. Se notifcará al conductor.',
         'success'
       );
       router.push('/driver');
@@ -101,7 +73,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
   return (
     <MainLayout>
       <div className="w-full md:w-1/2">
-        <GoBackHeader onClick={() => router.push('/driver')} />
+        <GoBackHeader onClick={() => router.push('/passenger')} />
         <h1 className="text-3xl font-bold text-cxBlue">Detalles del viaje</h1>
         <div className="w-full flex-col  px-3 mt-3 ">
           <h2 className="text-[1.3rem] text-gray-500 font-semibold mb-3">
@@ -119,7 +91,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 />
               ) : (
                 <p className="overflow-hidden  font-medium">
-                  {weeklyTrip?.origin}
+                  {weeklyTrip.origin}
                 </p>
               )}
             </div>
@@ -134,7 +106,7 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 />
               ) : (
                 <p className="overflow-hidden   font-medium ">
-                  {weeklyTrip?.destination}
+                  {weeklyTrip.destination}
                 </p>
               )}
             </div>
@@ -155,9 +127,10 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
             </div>
           </div>
           <h2 className="text-[1.3rem] text-gray-500 font-semibold">
-            Pasajeros
+            Conductor
           </h2>
-          <div className="w-full flex flex-col">
+          <div className="w-full flex my-2 flex-start items-center">
+            <PersonOutlineOutlinedIcon className="mr-2 inline-block text-[md] text-cxBlue" />
             {dataLoading ? (
               <Skeleton
                 variant="rectangular"
@@ -166,10 +139,52 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
                 className="rounded-md"
               />
             ) : (
-              renderPassengers()
+              <p className="overflow-hidden   font-medium flex items-center ">
+                {firstName + ' ' + firstLastName}
+                <PhoneIphoneOutlinedIcon className="inline-block text-[md] ml-2 text-cxBlue" />{' '}
+                <a
+                  className="underline decoration-cxBlue"
+                  href={getWhatsappLink(phoneNumber, whatsAppMessage)}
+                  target="_blank"
+                >
+                  {phoneNumber}
+                </a>
+              </p>
             )}
           </div>
-
+          <h2 className="text-[1.3rem] text-gray-500 font-semibold">
+            Vehículo
+          </h2>{' '}
+          <div className="w-full flex my-2 flex-start items-center">
+            <DirectionsCarFilledOutlinedIcon className="mr-2 inline-block text-[md] text-cxBlue" />
+            {dataLoading ? (
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={40}
+                className="rounded-md"
+              />
+            ) : (
+              <p className="overflow-hidden   font-medium flex items-center ">
+                {brand + ', ' + model + ', ' + color}
+              </p>
+            )}
+          </div>
+          <div className="w-full flex my-2 flex-start items-center">
+            <EightMpOutlinedIcon className="mr-2 inline-block text-[md] text-cxBlue" />
+            {dataLoading ? (
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={40}
+                className="rounded-md"
+              />
+            ) : (
+              <p className="overflow-hidden   font-medium flex items-center ">
+                ****{plate}
+              </p>
+            )}
+          </div>
           <div className="mt-10">
             <div className="w-full my-3">
               <CustomButton onClick={handleCancelTripBtnClick} variant="error">
@@ -199,16 +214,14 @@ export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
   const { id } = context.query;
-
   if (!id) {
     return {
       redirect: {
-        destination: '/driver',
+        destination: '/passenger',
         permanent: false,
       },
     };
   }
-
   return {
     props: {
       tripId: +id,
