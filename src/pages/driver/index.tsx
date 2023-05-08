@@ -7,18 +7,22 @@ import WelcomeUser from '../../components/WelcomeUser';
 import DriverHeader from '../../components/driver/DriverHeader';
 import Trips from '../../components/driver/Home/Trips';
 import MainLayout from '../../layouts/MainLayout';
-import prisma from '../../lib/prisma';
+import {
+  useDriverData,
+  useTripRequests,
+  useUpcomingTrips,
+} from '../../lib/api/driverReqs';
 
-interface DriverHomeProps {
-  driver: any;
-  user: any;
-  tripRequests: any;
-  upcomingTrips: any;
-}
+const DriverHome = () => {
+  const { data: userData, isLoading: userDataLoading } = useDriverData();
 
-const DriverHome = (props: DriverHomeProps) => {
-  const { driver, user, tripRequests, upcomingTrips } = props;
-  const { firstName, firstLastName, loading } = user?.profile || {};
+  const { data: tripRequests, isLoading: tripRequestsLoading } =
+    useTripRequests();
+
+  const { data: upcomingTrips, isLoading: upcomingTripsLoading } =
+    useUpcomingTrips();
+  const { driver } = userData || {};
+  const { firstName, firstLastName } = userData?.profile || {};
   const { car, weeklyTrips } = driver || {};
   const router = useRouter();
 
@@ -30,7 +34,7 @@ const DriverHome = (props: DriverHomeProps) => {
   };
 
   const checkProileComplete = () => {
-    if (!car) {
+    if (!car && !userDataLoading) {
       return (
         <MissingDataCard
           title="No hay vehículo configurado"
@@ -39,7 +43,7 @@ const DriverHome = (props: DriverHomeProps) => {
           onBtnClick={addCar}
         />
       );
-    } else if (!weeklyTrips?.length) {
+    } else if (!weeklyTrips?.length && !userDataLoading) {
       return (
         <MissingDataCard
           title="No hay viajes programados"
@@ -50,7 +54,12 @@ const DriverHome = (props: DriverHomeProps) => {
       );
     } else {
       return (
-        <Trips upcomingTrips={upcomingTrips} tripRequests={tripRequests} />
+        <Trips
+          upcomingTrips={upcomingTrips}
+          tripRequests={tripRequests}
+          upcomingTripsLoading={upcomingTripsLoading}
+          tripRequestsLoading={tripRequestsLoading}
+        />
       );
     }
   };
@@ -60,7 +69,7 @@ const DriverHome = (props: DriverHomeProps) => {
       <div className="w-full md:w-1/2">
         <DriverHeader />
         <WelcomeUser
-          loading={loading}
+          loading={userDataLoading}
           firstLastName={firstLastName as string}
           firstName={firstName as string}
         />
@@ -90,81 +99,20 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
       },
     };
   }
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-    include: {
-      profile: {
-        select: {
-          firstLastName: true,
-          firstName: true,
-          secondLastName: true,
-        },
-      },
-      driver: {
-        include: {
-          car: true,
-          weeklyTrips: true,
-
-          trips: {
-            include: {
-              TripRequest: true,
-              weeklyTrip: true,
-            },
-          },
-        },
-      },
-    },
+  console.log({
+    session,
   });
 
-  const tripRequests = await prisma.tripRequest.findMany({
-    where: {
-      trip: {
-        driverId: user?.driver?.id,
+  if (!session.user.isDriver && session.user.isUserTypeSelected) {
+    return {
+      redirect: {
+        destination: '/passenger',
+        permanent: false,
       },
-      status: 'PENDING',
-    },
-    include: {
-      trip: {
-        include: {
-          weeklyTrip: true,
-        },
-      },
-    },
-  });
-
-  const today = new Date();
-
-  const trips = await prisma.trip.findMany({
-    where: {
-      driverId: user?.driver?.id,
-      status: 'PENDING',
-    },
-    include: {
-      TripRequest: true,
-      weeklyTrip: true,
-      driver: true,
-      passengers: true,
-    },
-  });
-
-  const upcomingTrips = trips.filter((trip) => {
-    const tripDate = new Date(trip.date);
-    return tripDate >= today && trip.passengers.length > 0;
-  });
+    };
+  }
 
   return {
-    props: {
-      // pass driver as json to the client
-      user: JSON.parse(JSON.stringify(user)),
-      driver: JSON.parse(JSON.stringify(user?.driver)) ?? null,
-      tripRequests: tripRequests
-        ? JSON.parse(JSON.stringify(tripRequests))
-        : [],
-      upcomingTrips: upcomingTrips
-        ? JSON.parse(JSON.stringify(upcomingTrips))
-        : [],
-    },
+    props: {},
   };
 };

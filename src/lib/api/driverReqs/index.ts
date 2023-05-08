@@ -1,9 +1,76 @@
 import axios from 'axios';
+import useSWR from 'swr';
+import { fetcher } from '../Swr';
 import { AddWeeklyTripDto, CarDto, UpdateTripRequestDto } from './driverTypes';
 
-export const getCarData = async () => {
-  const { data } = await axios.get('/api/driver/car');
-  return data;
+export const useTripDeatils = (id: number) => {
+  const { data, error } = useSWR(`/api/trips/${id}`, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useWeeklyTrips = () => {
+  const { data, error } = useSWR('/api/driver/weeklytrip', fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useDriverData = () => {
+  const { data, error } = useSWR('/api/driver', fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useUpcomingTrips = () => {
+  const { data, error } = useSWR('/api/driver/trips/upcoming', fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useTripRequests = () => {
+  const { data, error } = useSWR('/api/driver/trip-requests', fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useTripRequest = (id: number) => {
+  const { data, error } = useSWR(`/api/driver/trip-requests/${id}`, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading: !data && !error,
+  };
+};
+
+export const useCarData = () => {
+  const { data, error } = useSWR('/api/driver/car', fetcher);
+  return {
+    data,
+    error,
+
+    isLoading: !data && !error,
+  };
 };
 
 export const saveCarData = async (data: CarDto) => {

@@ -14,9 +14,13 @@ const TripRequests = ({ tripRequests }: { tripRequests: any }) => {
           </span>
         </Link> */}
       </div>
-      {tripRequests.map((tripRequest: any) => (
-        <Trip tripRequest={tripRequest} key={tripRequest.id}></Trip>
-      ))}
+      {!tripRequests.length ? (
+        <span className="text-md opacity-50">No hay solicitudes</span>
+      ) : (
+        tripRequests.map((tripRequest: any) => (
+          <Trip tripRequest={tripRequest} key={tripRequest.id}></Trip>
+        ))
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { WeeklyTrip } from '@prisma/client';
+import dayjs from 'dayjs';
 import { place } from '../../types/trips';
 import { CreateUserDto } from './api/generalTypes';
 
@@ -158,14 +159,12 @@ export const getFormattedDepartureTime = (departureTime: string) => {
 };
 
 export const getDaysUntilTrip = (tripDate: string) => {
-  const date = new Date(tripDate);
-  const today = new Date();
+  const today = dayjs();
+  const targetDate = dayjs(tripDate);
 
-  const diff = date.getTime() - today.getTime();
+  const diff = targetDate.diff(today, 'day');
 
-  const days = Math.ceil(diff / (1000 * 3600 * 24));
-
-  return days;
+  return diff;
 };
 
 export const encodeString = (str: string) => {

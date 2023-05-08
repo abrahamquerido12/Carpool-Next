@@ -57,11 +57,6 @@ const TripDetails = ({ trip, goBack }: TripDetailsProps) => {
       ? Math.round(trip.distanceToDestination / 1.39)
       : Math.round(trip.distanceToOrigin / 1.39);
 
-  // const walkingTimeFormatted =
-  //   walkingTime > 3600
-  //     ? `${Math.floor(walkingTime / 60)} hrs y ${walkingTime % 60} min`
-  //     : `${Math.round(walkingTime / 60)} min`;
-
   const walkingTimeFormatted = formatWalkingTime(walkingTime);
 
   const handleOpenGoogleMaps = () => {
@@ -114,6 +109,7 @@ const TripDetails = ({ trip, goBack }: TripDetailsProps) => {
       setLoading(false);
     } else {
       openToast('Solicitud enviada', 'success');
+      setLoading(false);
       router.push('/passenger');
     }
   };
