@@ -1,4 +1,5 @@
 // protected route
+import dayjs from 'dayjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import prisma from '../../../../lib/prisma';
@@ -14,7 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === 'GET') {
     try {
-      const user = await prisma.user.findFirst({
+      const user = await prisma.user.findUnique({
         where: {
           email: session.user.email,
         },
@@ -22,44 +23,45 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           driver: {
             select: {
               id: true,
+              trips: true,
             },
           },
         },
       });
 
       if (!user) {
-        res.status(401).json({ error: 'Not Authorized' });
+        res.status(404).json({ error: 'User not found' });
         return;
       }
 
-      const tripRequests = await prisma.tripRequest.findMany({
+      const trips = await prisma.trip.findMany({
         where: {
-          trip: {
-            driverId: user?.driver?.id,
-          },
+          driverId: user?.driver?.id,
           status: 'PENDING',
         },
         include: {
-          trip: {
-            include: {
-              weeklyTrip: true,
-            },
-          },
+          TripRequest: true,
+          weeklyTrip: true,
+          driver: true,
+          passengers: true,
         },
       });
 
-      res.status(200).json(tripRequests);
+      const today = dayjs().startOf('day');
+      const upcomingTrips = trips.filter((trip) => {
+        const date = dayjs(trip.date).startOf('day');
+
+        return (
+          date.isSame(today) ||
+          (date.isAfter(today) && trip.passengers.length > 0)
+        );
+      });
+
+      res.status(200).json(upcomingTrips);
       return;
     } catch (e) {
       console.log(e);
-
-      res.status(500).json({ error: 'Something went wrong', e });
+      res.status(500).json({ error: 'Something went wrong' });
     }
-  }
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  } else {
-    const { acceptTrip } = req.body;
   }
 };

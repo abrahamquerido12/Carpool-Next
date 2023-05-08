@@ -1,5 +1,4 @@
 import MainLayout from '@/layouts/MainLayout';
-import prisma from '@/lib/prisma';
 import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import PhoneAndroidOutlinedIcon from '@mui/icons-material/PhoneAndroidOutlined';
@@ -14,18 +13,24 @@ import {
 } from '../../../../lib/helpers';
 
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { Skeleton } from '@mui/material';
 import CustomButton from '../../../../components/Button';
 import AlertDialog from '../../../../components/CustomAlertDialog';
 import CustomBackdrop from '../../../../components/CustomBackdrop';
-import { updateTripRequest } from '../../../../lib/api/driverReqs';
+import {
+  updateTripRequest,
+  useTripRequest,
+} from '../../../../lib/api/driverReqs';
 import { UseToastContext } from '../../../_app';
 
 interface Props {
-  trip: any;
-  weeklyTrip: any;
+  tripId: number;
 }
 
-const TripRequestDetailsPage = ({ trip, weeklyTrip }: Props) => {
+const TripRequestDetailsPage = ({ tripId }: Props) => {
+  const { data, isLoading: dataLoading, error } = useTripRequest(tripId);
+  const { trip, weeklyTrip } = data || {};
+
   const router = useRouter();
   const { openToast } = useContext(UseToastContext);
   const passengerProfile = trip?.passenger?.user?.profile;
@@ -42,8 +47,15 @@ const TripRequestDetailsPage = ({ trip, weeklyTrip }: Props) => {
   const passengerFullName = `${passengerProfile?.firstName} ${passengerProfile?.firstLastName}`;
   const passengerPhone = passengerProfile?.phoneNumber;
 
-  const title = getDateTitle(weeklyTrip.dayOfWeek, weeklyTrip.departureTime);
-  const time = getFormattedDepartureTime(weeklyTrip.departureTime);
+  const title = getDateTitle(weeklyTrip?.dayOfWeek, weeklyTrip?.departureTime);
+  const time = getFormattedDepartureTime(weeklyTrip?.departureTime);
+
+  if (!dataLoading && error) {
+    openToast(
+      'Ocurrión un error al cargar la información. Favor de intentar mas tarde.',
+      'error'
+    );
+  }
 
   const handleAcceptBtnClick = async () => {
     setAlertTitle('Confirmación');
@@ -77,6 +89,7 @@ const TripRequestDetailsPage = ({ trip, weeklyTrip }: Props) => {
         'Se aceptó solicitud de viaje con éxito. Se notifcará al pasajero para que se comunique contigo.',
         'success'
       );
+      setIsLoading(false);
       router.push('/driver');
     }
   };
@@ -96,21 +109,33 @@ const TripRequestDetailsPage = ({ trip, weeklyTrip }: Props) => {
           <div className="flex items-start flex-col justify-start w-full mb-3">
             <div className="w-full flex my-1 flex-start items-center">
               <TripOriginIcon className="mr-2 inline-block h-5 w-5 text-cxBlue" />
-              <p className="overflow-hidden  font-medium">
-                {weeklyTrip.origin}
-              </p>
+              {dataLoading ? (
+                <Skeleton width="100%" height={30} />
+              ) : (
+                <p className="overflow-hidden  font-medium">
+                  {weeklyTrip?.origin}
+                </p>
+              )}
             </div>
             <div className="w-full flex my-1 flex-start items-center ">
               <FmdGoodOutlinedIcon className="mr-2 inline-block text-[md] text-cxBlue" />
-              <p className="overflow-hidden   font-medium ">
-                {weeklyTrip.destination}
-              </p>
+              {dataLoading ? (
+                <Skeleton width="100%" height={30} />
+              ) : (
+                <p className="overflow-hidden   font-medium ">
+                  {weeklyTrip?.destination}
+                </p>
+              )}
             </div>
             <div className="w-full flex my-1 flex-start items-center ">
               <CalendarMonthIcon className="mr-2 inline-block h-5 w-5 text-cxBlue" />
-              <p className="overflow-hidden   font-medium ">
-                {title}, {time}
-              </p>
+              {dataLoading ? (
+                <Skeleton width="100%" height={30} />
+              ) : (
+                <p className="overflow-hidden   font-medium ">
+                  {title}, {time}
+                </p>
+              )}
             </div>
           </div>
           <h2 className="text-[1.3rem] text-gray-500 font-semibold">
@@ -118,13 +143,23 @@ const TripRequestDetailsPage = ({ trip, weeklyTrip }: Props) => {
           </h2>
           <div className="w-full my-1 flex flex-start items-center ">
             <PersonOutlineOutlinedIcon className="mr-2 inline-block h-5 w-5 text-cxBlue" />
-            <p className="overflow-hidden   font-medium">{passengerFullName}</p>
+            {dataLoading ? (
+              <Skeleton width="100%" height={30} />
+            ) : (
+              <p className="overflow-hidden   font-medium">
+                {passengerFullName}
+              </p>
+            )}
           </div>
 
           <div className="w-full my-1 flex flex-start items-center ">
             <PhoneAndroidOutlinedIcon className="mr-2 inline-block h-5 w-5 text-cxBlue" />
 
-            <p>{passengerPhone}</p>
+            {dataLoading ? (
+              <Skeleton width="100%" height={30} />
+            ) : (
+              <p>{passengerPhone}</p>
+            )}
           </div>
 
           <div className="mt-10">
@@ -169,38 +204,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
     };
   }
-  const tripReq = await prisma.tripRequest.findFirst({
-    where: {
-      id: +id,
-    },
-    include: {
-      passenger: {
-        include: {
-          user: {
-            include: {
-              profile: true,
-            },
-          },
-        },
-      },
-      trip: {
-        include: {
-          passengers: true,
-        },
-      },
-    },
-  });
-
-  const weeklyTrip = await prisma.weeklyTrip.findFirst({
-    where: {
-      id: tripReq?.trip?.weeklyTripId,
-    },
-  });
 
   return {
     props: {
-      trip: JSON.parse(JSON.stringify(tripReq)),
-      weeklyTrip: JSON.parse(JSON.stringify(weeklyTrip)),
+      tripId: +id,
     },
   };
 }

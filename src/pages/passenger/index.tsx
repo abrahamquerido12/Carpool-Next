@@ -1,4 +1,5 @@
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import dayjs from 'dayjs';
 import { GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -7,6 +8,7 @@ import WelcomeUser from '../../components/WelcomeUser';
 import PassengerHeader from '../../components/passenger/PassengerHeader';
 import Trips from '../../components/passenger/home/Trips';
 import MainLayout from '../../layouts/MainLayout';
+import { useUserData } from '../../lib/api/general';
 import prisma from '../../lib/prisma';
 
 interface PassengerHomeProps {
@@ -16,17 +18,18 @@ interface PassengerHomeProps {
 }
 
 const PassengerHome = (props: PassengerHomeProps) => {
-  const { user, upcomingTrips, tripRequests } = props;
+  const { data: user, isLoading: userDataLoading } = useUserData();
+  const { upcomingTrips, tripRequests } = props;
 
   const router = useRouter();
-  const { firstName, firstLastName } = user.profile;
+  const { firstName, firstLastName } = user?.profile || {};
 
   return (
     <MainLayout>
       <div className="w-full md:w-1/2 flex flex-col h-full">
         <PassengerHeader />
         <WelcomeUser
-          loading={false}
+          loading={userDataLoading}
           firstLastName={firstLastName as string}
           firstName={firstName as string}
         />
@@ -103,21 +106,25 @@ export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
     },
   });
 
-  const today = new Date();
+  const today = dayjs().startOf('day');
 
   // filter trips that are greater or equal to today
   const upcomingTrips = user?.Passenger?.trips?.filter((trip) => {
-    const tripDate = new Date(trip.trip.date);
-    return tripDate >= today;
+    const date = dayjs(trip.trip.date).startOf('day');
+
+    return date.isSame(today) || date.isAfter(today);
   });
 
   // show only trip request that are pending and in the future
   const tripRequests = user?.Passenger?.TripRequest?.filter((req) => {
-    const tripDate = new Date(req.trip.date);
-    return req.status === 'PENDING' && tripDate >= today;
-  });
+    // use dayjs to check if tripDate is today or greater
 
-  console.log(upcomingTrips);
+    const date = dayjs(req.trip.date).startOf('day');
+
+    return (
+      (req.status === 'PENDING' && date.isSame(today)) || date.isAfter(today)
+    );
+  });
 
   return {
     props: {

@@ -14,8 +14,60 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(401).json({ error: 'Not Authorized' });
     return;
   }
+  if (req.method === 'GET') {
+    try {
+      const { id } = req.query;
+      if (!id) return res.status(404).json({ error: 'Invalid id' });
 
-  if (req.method === 'PUT') {
+      const trip = await prisma.trip.findFirst({
+        where: {
+          id: Number(id),
+        },
+        include: {
+          passengers: {
+            include: {
+              passenger: {
+                include: {
+                  user: {
+                    select: {
+                      profile: {
+                        select: {
+                          firstLastName: true,
+                          firstName: true,
+                          phoneNumber: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          weeklyTrip: true,
+        },
+      });
+
+      if (!trip) return res.status(404).json({ error: 'Trip not found' });
+
+      const formattedtrip = {
+        ...trip,
+
+        passengers: trip?.passengers.map((passenger: any) => {
+          return {
+            ...passenger,
+            profile: {
+              ...passenger.passenger.user.profile,
+            },
+          };
+        }),
+      };
+
+      res.status(200).json(formattedtrip);
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ error: 'Something went wrong', e: e });
+    }
+  } else if (req.method === 'PUT') {
     try {
       const { id } = req.query;
       if (!id) return res.status(404).json({ error: 'Invalid id' });
