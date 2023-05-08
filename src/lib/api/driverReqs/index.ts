@@ -34,32 +34,38 @@ export const useDriverData = () => {
 };
 
 export const useUpcomingTrips = () => {
-  const { data, error } = useSWR('/api/driver/trips/upcoming', fetcher);
+  const { data, error, mutate } = useSWR('/api/driver/trips/upcoming', fetcher);
 
   return {
     data,
     error,
     isLoading: !data && !error,
+    mutate,
   };
 };
 
 export const useTripRequests = () => {
-  const { data, error } = useSWR('/api/driver/trip-requests', fetcher);
+  const { data, error, mutate } = useSWR('/api/driver/trip-requests', fetcher);
 
   return {
     data,
     error,
     isLoading: !data && !error,
+    mutate,
   };
 };
 
 export const useTripRequest = (id: number) => {
-  const { data, error } = useSWR(`/api/driver/trip-requests/${id}`, fetcher);
+  const { data, error, mutate } = useSWR(
+    `/api/driver/trip-requests/${id}`,
+    fetcher
+  );
 
   return {
     data,
     error,
     isLoading: !data && !error,
+    mutate,
   };
 };
 
