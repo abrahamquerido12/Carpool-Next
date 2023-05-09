@@ -11,7 +11,11 @@ import TripOriginIcon from '@mui/icons-material/TripOrigin';
 import CustomButton from '@/components/Button';
 import AlertDialog from '@/components/CustomAlertDialog';
 import CustomBackdrop from '@/components/CustomBackdrop';
-import { cancelTrip, useTripDeatils } from '@/lib/api/driverReqs';
+import {
+  cancelTrip,
+  deleteRemovePassengerFromTrip,
+  useTripDeatils,
+} from '@/lib/api/driverReqs';
 import {
   getDateTitle,
   getFormattedDepartureTime,
@@ -24,7 +28,12 @@ import { GetServerSidePropsContext } from 'next';
 import { useContext, useState } from 'react';
 
 const TripDetailsPage = ({ tripId }: { tripId: number }) => {
-  const { data: trip, isLoading: dataLoading, error } = useTripDeatils(tripId);
+  const {
+    data: trip,
+    isLoading: dataLoading,
+    error,
+    mutate,
+  } = useTripDeatils(tripId);
   const { weeklyTrip, passengers } = trip || {};
   const { openToast } = useContext(UseToastContext);
   const router = useRouter();
@@ -60,7 +69,30 @@ const TripDetailsPage = ({ tripId }: { tripId: number }) => {
     setPassengerToDelete(passenger);
   };
 
-  const handleDeletePassengerAction = async () => {};
+  const handleDeletePassengerAction = async () => {
+    setIsLoading(true);
+
+    const id = passengerToDelete.passengerId;
+    if (!id) return;
+
+    const response = await deleteRemovePassengerFromTrip(tripId, {
+      passengerId: id,
+    });
+
+    if (response.status !== 200) {
+      openToast(
+        'Ocurrión un error al quitar pasajero del viaje. Favor de intentar mas tarde.',
+        'error'
+      );
+      setIsLoading(false);
+    } else {
+      openToast('Se quitÓ al pasajero del viaje con éxito.', 'success');
+      setPassengerToDelete(null);
+      await mutate();
+      setIsLoading(false);
+    }
+    setIsLoading(false);
+  };
 
   const renderPassengers = () => {
     if (!passengers || passengers?.length == 0) {

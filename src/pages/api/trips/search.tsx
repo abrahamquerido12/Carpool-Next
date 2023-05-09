@@ -1,5 +1,6 @@
 // protected route
 import prisma from '@/lib/prisma';
+import dayjs from 'dayjs';
 import { getDistance } from 'geolib';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
@@ -36,12 +37,38 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       // trips we'll be generated based on driver's weekly trips and query params
       let trips = await prisma.weeklyTrip.findMany({
         include: {
+          trips: {
+            select: {
+              date: true,
+              passengers: true,
+            },
+          },
           driver: {
             select: {
               id: true,
+              car: true,
             },
           },
         },
+      });
+      const searchedDate = dayjs(date);
+
+      // we'll remove the trips that dont have seats available
+      trips = trips.filter((trip) => {
+        const seats = trip?.driver?.car?.seats;
+        const tripOfDay = trip?.trips.find((trip) => {
+          const tripDate = dayjs(trip.date);
+          return (
+            tripDate.format('MM') === searchedDate.format('MM') &&
+            tripDate.format('DD') === searchedDate.format('DD')
+          );
+        });
+        if (!tripOfDay) return true;
+        if (!seats) return true;
+
+        const seatsAvailable = seats - tripOfDay.passengers.length;
+
+        return seatsAvailable > 0;
       });
 
       if (date) {

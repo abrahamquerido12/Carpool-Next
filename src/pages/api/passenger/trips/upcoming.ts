@@ -1,8 +1,10 @@
 // protected route
-import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import prisma from '../../../../lib/prisma';
+const timezone = 'America/Mexico_City';
+
 import { options } from '../../auth/[...nextauth]';
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -28,6 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                   trip: {
                     include: {
                       weeklyTrip: true,
+                      TripRequest: true,
                     },
                   },
                 },
@@ -42,13 +45,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      const today = dayjs().startOf('day');
+      const today = moment().tz(timezone).startOf('day');
 
       // filter trips that are greater or equal to today
       const upcomingTrips = user?.Passenger?.trips?.filter((trip) => {
-        const date = dayjs(trip.trip.date).startOf('day');
+        const date = moment(trip.trip.date).tz(timezone).startOf('day');
 
-        return date.isSame(today) || date.isAfter(today);
+        date.isSameOrAfter(today);
+        return date.isSameOrAfter(today);
       });
 
       res.status(200).json(upcomingTrips ?? []);

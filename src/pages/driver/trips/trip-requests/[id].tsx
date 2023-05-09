@@ -31,6 +31,8 @@ interface Props {
 
 const TripRequestDetailsPage = ({ tripId }: Props) => {
   const { data, isLoading: dataLoading, error } = useTripRequest(tripId);
+  console.log(data);
+
   const { mutate: updateReqs } = useTripRequests();
   const { mutate: updateUpcomingTrips } = useUpcomingTrips();
   const { trip, weeklyTrip } = data || {};

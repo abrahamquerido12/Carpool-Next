@@ -18,3 +18,7 @@ export interface AddWeeklyTripDto {
 export interface UpdateTripRequestDto {
   acceptTrip: boolean;
 }
+
+export interface RemovePassengerFromTripDto {
+  passengerId: string;
+}

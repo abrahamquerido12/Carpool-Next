@@ -1,9 +1,9 @@
 // protected route
-import prisma from '@/lib/prisma';
-import { options } from '@/pages/api/auth/[...nextauth]';
 import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
+import prisma from '../../../../../lib/prisma';
+import { options } from '../../../auth/[...nextauth]';
 
 const timezone = 'America/Mexico_City';
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -47,7 +47,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const today = moment().tz(timezone).startOf('day');
       const tripRequests = user.Passenger?.TripRequest?.filter((req) => {
         const date = moment(req.searchedDateTime).tz(timezone).startOf('day');
-        console.log({ tripId: req.id, date: date.toString() });
 
         return date.isSameOrAfter(today) && req.status === 'PENDING';
       });

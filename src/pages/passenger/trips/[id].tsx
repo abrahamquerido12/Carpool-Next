@@ -30,6 +30,7 @@ import { useContext, useState } from 'react';
 
 const TripDetailsPage = ({ tripId }: { tripId: number }) => {
   const { data: trip, error, isLoading: dataLoading } = useTripDeatils(tripId);
+
   const { mutate } = useUpcomingTrips();
   const { weeklyTrip, driver } = trip?.trip || {};
   const { firstName, firstLastName, phoneNumber } = driver?.user.profile || {};

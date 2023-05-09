@@ -64,20 +64,34 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      // if there is no trip with weeklyTripId, create a new trip
-      let trip = await prisma.trip.findFirst({
+      const searchedDate = dayjs(searchedDateTime);
+
+      const trips = await prisma.trip.findMany({
         where: {
-          weeklyTripId,
+          weeklyTripId: weeklyTripId,
         },
         include: {
           weeklyTrip: true,
         },
       });
 
+      let trip = trips.find((t) => {
+        const tripDate = dayjs(t.date);
+
+        return (
+          tripDate.format('MM') === searchedDate.format('MM') &&
+          tripDate.format('DD') === searchedDate.format('DD')
+        );
+      });
+
+      console.log({
+        trip,
+      });
+
       if (!trip) {
         trip = await prisma.trip.create({
           data: {
-            date: searchedDateTime as string,
+            date: searchedDateTime,
             isRecurrent: isRecurrent as boolean,
             status: 'PENDING',
             weeklyTripId: weeklyT?.id as number,

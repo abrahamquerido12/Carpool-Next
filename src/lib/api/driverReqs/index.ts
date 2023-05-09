@@ -1,15 +1,21 @@
 import axios from 'axios';
 import useSWR from 'swr';
 import { fetcher } from '../Swr';
-import { AddWeeklyTripDto, CarDto, UpdateTripRequestDto } from './driverTypes';
+import {
+  AddWeeklyTripDto,
+  CarDto,
+  RemovePassengerFromTripDto,
+  UpdateTripRequestDto,
+} from './driverTypes';
 
 export const useTripDeatils = (id: number) => {
-  const { data, error } = useSWR(`/api/trips/${id}`, fetcher);
+  const { data, error, mutate } = useSWR(`/api/trips/${id}`, fetcher);
 
   return {
     data,
     error,
     isLoading: !data && !error,
+    mutate,
   };
 };
 
@@ -106,4 +112,11 @@ export const updateTripRequest = async (
 
 export const cancelTrip = async (id: number) => {
   return axios.put(`/api/trips/${id}`);
+};
+
+export const deleteRemovePassengerFromTrip = async (
+  id: number,
+  body: RemovePassengerFromTripDto
+) => {
+  return axios.put(`/api/driver/trips/${id}/remove-passenger`, body);
 };
