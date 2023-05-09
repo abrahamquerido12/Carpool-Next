@@ -31,8 +31,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         res.status(404).json({ error: 'User not found' });
         return;
       }
-
-      res.status(200).json(user.driver?.car);
+      const car = user.driver?.car || {};
+      res.status(200).json(car);
       return;
     } catch (e) {
       console.log(e);

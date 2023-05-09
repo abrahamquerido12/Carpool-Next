@@ -14,12 +14,13 @@ export const useTripDeatils = (id: number) => {
 };
 
 export const useWeeklyTrips = () => {
-  const { data, error } = useSWR('/api/driver/weeklytrip', fetcher);
+  const { data, error, mutate } = useSWR('/api/driver/weeklytrip', fetcher);
 
   return {
     data,
     error,
     isLoading: !data && !error,
+    mutate,
   };
 };
 

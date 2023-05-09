@@ -3,7 +3,7 @@ import { CetiData } from '@/lib/helpers';
 import { useLoadScript } from '@react-google-maps/api';
 import dayjs, { Dayjs } from 'dayjs';
 import React, { useContext } from 'react';
-import { addWeeklyTrip } from '../../../lib/api/driverReqs';
+import { addWeeklyTrip, useWeeklyTrips } from '../../../lib/api/driverReqs';
 import { UseToastContext } from '../../../pages/_app';
 import { WeeklyTripsContext } from '../../../pages/driver/weekly-trips';
 import CustomButton from '../../Button';
@@ -18,6 +18,7 @@ interface Props {
 }
 
 const AddWeeklyTrip = ({ day, dayVal }: Props) => {
+  const { mutate } = useWeeklyTrips();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY as string;
   const { openToast } = useContext(UseToastContext);
   const { isLoaded } = useLoadScript({
@@ -117,7 +118,7 @@ const AddWeeklyTrip = ({ day, dayVal }: Props) => {
       openToast('Viaje semanal agregado', 'success');
       setSaving(false);
       onClose();
-      refreshData();
+      mutate();
     } else {
       openToast('Error al agregar viaje semanal', 'error');
       setSaving(false);
