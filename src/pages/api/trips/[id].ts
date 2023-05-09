@@ -1,10 +1,12 @@
 // protected route
 import prisma from '@/lib/prisma';
-import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { sendSms } from '../../../lib/twilio';
 import { options } from '../auth/[...nextauth]';
+
+const timezone = 'America/Mexico_City';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -107,9 +109,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         },
       });
 
-      const date = dayjs(trip.date).format('DD/MM/YYYY');
-      const time = dayjs(trip.date).format('HH:mm');
-      const message = `Tu viaje para el día ${date} a las ${time} ha sido cancelado.\n`;
+      // const date = dayjs(trip.date).format('DD/MM/YYYY');
+      // const time = dayjs(trip.date).format('HH:mm');
+      // const message = `Tu viaje para el día ${date} a las ${time} ha sido cancelado.\n`;
+
+      const date = moment(trip.date).tz(timezone).format('DD/MM/YYYY');
+      const time = moment(trip.date).tz(timezone).format('HH:mm');
+      const message = `\nTu viaje para el día ${date} a las ${time} ha sido cancelado.\n`;
 
       //notify status
       const passengerNotifications = trip.passengers.map(async (p) => {

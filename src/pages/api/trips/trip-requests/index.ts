@@ -1,10 +1,13 @@
 // protected route
 import prisma from '@/lib/prisma';
 import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { sendSms } from '../../../../lib/twilio';
 import { options } from '../../auth/[...nextauth]';
+
+const timezone = 'America/Mexico_City';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -129,11 +132,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const rquestDate = dayjs(tripRequest.searchedDateTime).format(
         'DD/MM/YYYY'
       );
-      const weeklyTripTime = dayjs(trip.weeklyTrip.departureTime).format(
-        'HH:mm'
-      );
+      // const weeklyTripTime = dayjs(trip.weeklyTrip.departureTime).format(
+      //   'HH:mm'
+      // );
+      const departureTime = moment
+        .utc(trip.weeklyTrip.departureTime)
+        .tz(timezone);
+
+      const weeklyTripTime = departureTime.format('HH:mm');
 
       const message = `Tienes una nueva solicitud de viaje para el día ${rquestDate}, en tu viaje de las ${weeklyTripTime}.\n\n`;
+
+      console.log(message);
 
       if (process.env.NODE_ENV !== 'development') {
         await sendSms(`+52${driverPhone}`, message);

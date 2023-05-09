@@ -1,9 +1,11 @@
 // protected route
 import prisma from '@/lib/prisma';
 import { options } from '@/pages/api/auth/[...nextauth]';
-import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
+
+const timezone = 'America/Mexico_City';
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, options);
@@ -42,17 +44,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return;
       }
 
-      const today = dayjs().startOf('day');
-
+      const today = moment().tz(timezone).startOf('day');
       const tripRequests = user.Passenger?.TripRequest?.filter((req) => {
-        // use dayjs to check if tripDate is today or greater
+        const date = moment(req.searchedDateTime).tz(timezone).startOf('day');
+        console.log({ tripId: req.id, date: date.toString() });
 
-        const date = dayjs(req.trip.date).startOf('day');
-
-        return (
-          (req.status === 'PENDING' && date.isSame(today)) ||
-          date.isAfter(today)
-        );
+        return date.isSameOrAfter(today) && req.status === 'PENDING';
       });
       res.status(200).json(tripRequests ?? []);
       return;
