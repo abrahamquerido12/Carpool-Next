@@ -16,7 +16,12 @@ const Trip = ({ tripRequest }: { tripRequest: any }) => {
   };
 
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
-  const title = getDateTitle(weeklyTrip?.dayOfWeek, tripRequest?.trip?.date);
+  const title = getDateTitle(
+    weeklyTrip?.dayOfWeek,
+    tripRequest?.searchedDateTime
+  );
+
+  console.log(tripRequest);
 
   const origin = weeklyTrip?.origin;
   const destination = weeklyTrip?.destination;

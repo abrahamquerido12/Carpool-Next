@@ -24,6 +24,7 @@ const UpcomingTrip = ({ trip }: Props) => {
 
   const time = getFormattedDepartureTime(weeklyTrip.departureTime);
   const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.date);
+
   const daysUntilTrip = getDaysUntilTrip(trip?.date);
 
   const origin = weeklyTrip?.origin;
