@@ -1,10 +1,11 @@
 // protected route
 import prisma from '@/lib/prisma';
 import { options } from '@/pages/api/auth/[...nextauth]';
-import dayjs from 'dayjs';
+import moment from 'moment-timezone';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 import { sendSms } from '../../../../../lib/twilio';
+const timezone = 'America/Mexico_City';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -60,9 +61,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if (!driver) return res.status(400).json({ error: 'No driver found' });
       const phone = driver.user.profile?.phoneNumber;
       const passsengerName = deletedPassenger.passenger.user.profile?.firstName;
-      const tripDateTime = dayjs(deletedPassenger.trip.date).format(
-        'DD/MM/YYYY HH:mm'
-      );
+      // const tripDateTime = dayjs(deletedPassenger.trip.date).format(
+      //   'DD/MM/YYYY HH:mm'
+      // );
+      const tripDateTime = moment
+        .tz(deletedPassenger.trip.date, timezone)
+        .format('DD/MM/YYYY HH:mm');
 
       if (phone && process.env.NODE_ENV === 'production') {
         await sendSms(
