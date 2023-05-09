@@ -1,6 +1,7 @@
 import MainLayout from '@/layouts/MainLayout';
 import cars from '@/lib/cars.json';
 import { AlertColor, Skeleton, TextField } from '@mui/material';
+import _ from 'lodash';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -28,6 +29,7 @@ const colors = [
 
 const AddCarPage = () => {
   const { data: car, isLoading, error } = useCarData();
+  console.log(car);
 
   const carBrands = cars.map((car) => car.brand);
 
@@ -112,7 +114,7 @@ const AddCarPage = () => {
   }, [carBrand]);
 
   useEffect(() => {
-    if (car) {
+    if (car && !_.isEmpty(car)) {
       setCarBrand(car.brand);
       setCarModel(car.model);
       setPlaca(car.plate);
