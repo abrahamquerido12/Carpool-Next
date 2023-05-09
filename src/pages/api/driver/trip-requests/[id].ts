@@ -1,10 +1,12 @@
 // protected route
 import prisma from '@/lib/prisma';
-import dayjs from 'dayjs';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { sendSms } from '../../../../lib/twilio';
 import { options } from '../../auth/[...nextauth]';
+
+import moment from 'moment-timezone';
+const timezone = 'America/Mexico_City';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -124,8 +126,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const phone = passenger.user?.profile?.phoneNumber;
     if (!phone) return res.status(400).json({ error: 'Missing phone number' });
 
-    const date = dayjs(trip.searchedDateTime).format('DD/MM/YYYY');
-    const time = dayjs(trip?.trip?.weeklyTrip?.departureTime).format('HH:mm');
+    // const date = dayjs(trip.searchedDateTime).format('DD/MM/YYYY');
+    // const time = dayjs(trip?.trip?.weeklyTrip?.departureTime).format('HH:mm');
+
+    // const message = `Tu solicitud de viaje para el día ${date} a las ${time} ha sido ${
+    //   acceptTrip ? 'aceptado' : 'rechazado'
+    // }.\n`;
+
+    const date = moment(trip.searchedDateTime)
+      .tz(timezone)
+      .format('DD/MM/YYYY');
+    const time = moment(trip?.trip?.weeklyTrip?.departureTime)
+      .tz(timezone)
+      .format('HH:mm');
 
     const message = `Tu solicitud de viaje para el día ${date} a las ${time} ha sido ${
       acceptTrip ? 'aceptado' : 'rechazado'
