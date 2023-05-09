@@ -54,7 +54,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           date.isAfter(today)
         );
       });
-      res.status(200).json(tripRequests);
+      res.status(200).json(tripRequests ?? []);
       return;
     } catch (e) {
       console.log(e);
