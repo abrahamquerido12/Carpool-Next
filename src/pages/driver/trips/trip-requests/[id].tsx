@@ -51,7 +51,7 @@ const TripRequestDetailsPage = ({ tripId }: Props) => {
   const passengerFullName = `${passengerProfile?.firstName} ${passengerProfile?.firstLastName}`;
   const passengerPhone = passengerProfile?.phoneNumber;
 
-  const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.trip?.date);
+  const title = getDateTitle(weeklyTrip?.dayOfWeek, trip?.searchedDateTime);
   const time = getFormattedDepartureTime(weeklyTrip?.departureTime);
 
   if (!dataLoading && error) {

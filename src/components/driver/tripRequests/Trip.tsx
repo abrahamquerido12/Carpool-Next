@@ -21,8 +21,6 @@ const Trip = ({ tripRequest }: { tripRequest: any }) => {
     tripRequest?.searchedDateTime
   );
 
-  console.log(tripRequest);
-
   const origin = weeklyTrip?.origin;
   const destination = weeklyTrip?.destination;
 
