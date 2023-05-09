@@ -51,7 +51,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return date.isSame(today) || date.isAfter(today);
       });
 
-      res.status(200).json(upcomingTrips);
+      res.status(200).json(upcomingTrips ?? []);
       return;
     } catch (e) {
       console.log(e);
