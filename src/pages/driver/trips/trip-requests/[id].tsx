@@ -91,10 +91,7 @@ const TripRequestDetailsPage = ({ tripId }: Props) => {
       );
       setIsLoading(false);
     } else {
-      openToast(
-        'Se aceptó solicitud de viaje con éxito. Se notifcará al pasajero para que se comunique contigo.',
-        'success'
-      );
+      openToast('Solicitud actualizada correctamente', 'success');
       updateReqs();
       updateUpcomingTrips();
 
